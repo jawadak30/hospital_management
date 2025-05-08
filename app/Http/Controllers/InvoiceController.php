@@ -1,0 +1,117 @@
+<?php
+namespace App\Http\Controllers;
+
+use App\Models\Appointment;
+use App\Models\Invoice;
+use App\Models\Patient;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+
+class InvoiceController extends Controller
+{
+    public function index()
+    {
+        $invoices = Invoice::with('patient')->latest()->get();
+        return view('invoices.print', compact('invoices'));
+    }
+
+    public function create()
+    {
+        $doctorId = Auth::user()->doctor->id;
+
+        // Get patient IDs who have appointments with this doctor
+        $patientIds = Appointment::where('doctor_id', $doctorId)
+            ->pluck('patient_id')
+            ->unique();
+
+        // Retrieve those patients with their user info
+        $patients = Patient::with('user')
+            ->whereIn('id', $patientIds)
+            ->get();
+
+    return view('invoices.create', compact('patients'));
+    }
+
+    public function store(Request $request)
+    {
+        // Validate the request data
+        $data = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'amount' => 'required|numeric',
+            'status' => 'required|in:pending,paid,canceled',
+        ]);
+
+        // Create the invoice with an empty path for now
+        $invoice = Invoice::create([
+            ...$data,
+            'path' => '', // Temporarily empty
+        ]);
+
+        // Generate the PDF file name
+        $fileName = uniqid('invoice_') . '.pdf';
+        $filePath = 'uploads/' . $fileName; // relative path for public disk
+
+        // Generate PDF content
+        $pdf = Pdf::loadView('invoices.pdf', compact('invoice'));
+
+        // Save PDF to public disk (storage/app/public/uploads)
+        Storage::disk('public')->put($filePath, $pdf->output());
+
+        // Update the invoice with the public path
+        $invoice->update(['path' => $filePath]);
+
+        return back()->with('success', 'Invoice created successfully.');
+    }
+
+
+    public function show(Invoice $invoice)
+    {
+        return view('invoices.show', compact('invoice'));
+    }
+
+    public function edit(Invoice $invoice)
+    {
+        $patients = Patient::all();
+        return view('invoices.edit', compact('invoice', 'patients'));
+    }
+
+    public function update(Request $request, Invoice $invoice)
+    {
+        $data = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'amount' => 'required|numeric',
+            'status' => 'required|in:pending,paid,canceled',
+        ]);
+
+        $invoice->update($data);
+
+        // Regenerate PDF
+        $pdf = Pdf::loadView('invoices.pdf', compact('invoice'));
+        $path = 'invoices/invoice_' . $invoice->id . '.pdf';
+        Storage::put('public/' . $path, $pdf->output());
+
+        $invoice->update(['path' => $path]);
+
+        return redirect()->route('invoices.index')->with('success', 'Invoice updated.');
+    }
+
+    public function destroy(Invoice $invoice)
+    {
+        Storage::delete('public/' . $invoice->path);
+        $invoice->delete();
+
+        return redirect()->route('invoices.index')->with('success', 'Invoice deleted.');
+    }
+
+    public function download(Invoice $invoice)
+    {
+        return response()->file(storage_path('app/public/' . $invoice->path));
+    }
+
+    public function print(Invoice $invoice)
+    {
+        return view('invoices.pdf', compact('invoice'));
+    }
+}
