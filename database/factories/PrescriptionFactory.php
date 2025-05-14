@@ -24,8 +24,6 @@ class PrescriptionFactory extends Factory
         return [
             'doctor_id'   => Doctor::factory(),
             'patient_id'  => Patient::factory(),
-            'medication'  => $this->faker->word(),
-            'dosage'      => $this->faker->word(),
         ];
     }
 }

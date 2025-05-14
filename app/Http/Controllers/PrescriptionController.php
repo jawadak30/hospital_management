@@ -7,6 +7,7 @@ use App\Models\Doctor;
 use App\Models\MedicalRecord;
 use App\Models\Patient;
 use App\Models\Prescription;
+use App\Models\PrescriptionItem;
 use Illuminate\Http\Request;
 
 class PrescriptionController extends Controller
@@ -48,36 +49,46 @@ class PrescriptionController extends Controller
         return view('admin.prescriptions.prescriptions_patient', compact('prescriptions'));
     }
 
-    public function store(Request $request)
-    {
-        // Validate the incoming request data
-        $request->validate([
-            'patient_id' => 'required|exists:patients,id',
-            'medication' => 'required|string',
-            'dosage' => 'required|string',
+public function store(Request $request)
+{
+    // Validate the incoming request data
+    $request->validate([
+        'patient_id' => 'required|exists:patients,id',
+        'medication' => 'required|array|min:1',
+        'medication.*' => 'required|string|max:255',  // Validate each medication
+        'dosage' => 'required|array|min:1',
+        'dosage.*' => 'required|string|max:255',  // Validate each dosage
+    ]);
+
+    // Get the authenticated doctor's information
+    $doctor = auth()->user()->doctor;
+
+    // Create the prescription
+    $prescription = Prescription::create([
+        'doctor_id' => $doctor->id,
+        'patient_id' => $request->patient_id,
+    ]);
+
+    // Save each medication and dosage in a new PrescriptionItem
+    foreach ($request->medication as $key => $medication) {
+        PrescriptionItem::create([
+            'prescription_id' => $prescription->id,
+            'medication' => $medication,
+            'dosage' => $request->dosage[$key],
         ]);
-
-        // Get the authenticated doctor's information
-        $doctor = auth()->user()->doctor;
-
-        // Create the prescription
-        $prescription = Prescription::create([
-            'doctor_id' => $doctor->id,
-            'patient_id' => $request->patient_id,
-            'medication' => $request->medication,
-            'dosage' => $request->dosage,
-        ]);
-
-        // Create a medical record for the patient automatically
-        MedicalRecord::create([
-            'patient_id' => $request->patient_id,
-            'diagnosis' => 'add diagnosis',  // Assuming diagnosis is related to medication (you can adjust as needed)
-            'treatment' => 'add treatment',     // Assuming treatment is related to dosage (you can adjust as needed)
-        ]);
-
-        // Return with a success message
-        return back()->with('success', 'Ordonnance ajoutée avec succès.');
     }
+
+    // Create a medical record for the patient automatically
+    MedicalRecord::create([
+        'patient_id' => $request->patient_id,
+        'diagnosis' => 'add diagnosis',  // You can customize this as needed
+        'treatment' => 'add treatment',  // You can customize this as needed
+    ]);
+
+    // Return with a success message
+    return back()->with('success', 'Ordonnance ajoutée avec succès.');
+}
+
 
 
     public function edit(Prescription $prescription)
@@ -93,28 +104,39 @@ class PrescriptionController extends Controller
         return view('admin.prescriptions.update_prescription', compact('prescription', 'doctor', 'patients'));
     }
 
-    public function update(Request $request, Prescription $prescription)
-    {
-        // Validate the request data
-        $validatedData = $request->validate([
-            'patient_id' => 'required|exists:patients,id',
-            'medication' => 'required|string',
-            'dosage' => 'required|string',
+public function update(Request $request, Prescription $prescription)
+{
+    // Validate the incoming request data
+    $validatedData = $request->validate([
+        'patient_id' => 'required|exists:patients,id',
+        'medication' => 'required|array|min:1',
+        'medication.*' => 'required|string|max:255',
+        'dosage' => 'required|array|min:1',
+        'dosage.*' => 'required|string|max:255',
+    ]);
+
+    // Update the prescription's patient (doctor is assumed to stay the same)
+    $prescription->update([
+        'patient_id' => $validatedData['patient_id'],
+    ]);
+
+    // Delete old prescription items
+    $prescription->items()->delete(); // assuming you have a relationship called `items`
+
+    // Re-create prescription items
+    foreach ($validatedData['medication'] as $key => $medication) {
+        PrescriptionItem::create([
+            'prescription_id' => $prescription->id,
+            'medication' => $medication,
+            'dosage' => $validatedData['dosage'][$key],
         ]);
-
-        // Update the prescription
-        $prescription->update([
-            'patient_id' => $validatedData['patient_id'],
-            'medication' => $validatedData['medication'],
-            'dosage' => $validatedData['dosage'],
-        ]);
-
-        // Optionally, you can also update the doctor if needed, but it seems like the doctor is fixed for the authenticated user
-        // $prescription->doctor_id = auth()->user()->doctor->id; // If you need to ensure this
-
-        // Redirect with a success message
-        return back()->with('success', 'Prescription updated successfully!');
     }
+
+    // Return with a success message
+    return back()->with('success', 'Prescription updated successfully!');
+}
+
+
 
 
     public function destroy(Prescription $prescription)

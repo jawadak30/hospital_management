@@ -339,11 +339,11 @@
                             </svg>
                         </div>
                     </div>
-                </form>
-
-                <a href="{{ route('guest_welcome') }}" class="inline-block bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition">
+                                    <a href="{{ route('guest_welcome') }}" class="inline-block bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition">
                     Reset
                 </a>
+                </form>
+
 
 
                 <div class="product-grid">
@@ -357,7 +357,7 @@
                                     <h2>Dr. {{ $doctor->user->name }}</h2>
                                     <p>{{ $doctor->specialization }}</p>
                                     <div class="actions">
-                                        <div class="action-button info">Info</div>
+                                        <a href="{{route('view_profile',$doctor->id)}}" class="action-button info">Info</a>
                                         <div class="action-icon">
                                             <svg width="12" height="13" viewBox="0 0 12 13" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <!-- SVG paths here -->

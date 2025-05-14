@@ -30,16 +30,24 @@
                             <thead>
                                 <tr>
                                     <th>#ID</th>
-                                    <th>Medication</th>
-                                    <th>Dosage</th>
+                                    <th>Doctor</th>
+                                    <th>Medications</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($prescriptions as $prescription)
                                     <tr>
                                         <td>{{ $prescription->id }}</td>
-                                        <td>{{ $prescription->medication }}</td>
-                                        <td>{{ $prescription->dosage }}</td>
+                                        <td>{{ $prescription->doctor->user->name ?? '-' }}</td>
+                                        <td>
+                                            <ul class="mb-0">
+                                                @foreach($prescription->items as $item)
+                                                    <li>
+                                                        {{ $item->medication }} – <strong>{{ $item->dosage }}</strong>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -51,6 +59,7 @@
     </div>
 </div>
 @endsection
+
 
 @section('settings')
 @include('admin.admin_components.settings')

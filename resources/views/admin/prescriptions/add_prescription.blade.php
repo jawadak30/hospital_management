@@ -45,25 +45,31 @@
                                 </div>
                             </div>
 
-                            <!-- Medication -->
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label class="form-label" for="medication">Médicaments</label>
-                                    <textarea name="medication" class="form-control @error('medication') is-invalid @enderror" rows="3">{{ old('medication') }}</textarea>
-                                    @error('medication')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                            <!-- Medications (Multiple) -->
+                            <div id="medication-fields">
+                                <div class="row medication-item">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label" for="medication[]">Médicament</label>
+                                        <input type="text" name="medication[]" class="form-control @error('medication.*') is-invalid @enderror" value="{{ old('medication.0') }}">
+                                        @error('medication.*')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label" for="dosage[]">Dosage</label>
+                                        <input type="text" name="dosage[]" class="form-control @error('dosage.*') is-invalid @enderror" value="{{ old('dosage.0') }}">
+                                        @error('dosage.*')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Dosage -->
+                            <!-- Add Medication Button -->
                             <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label class="form-label" for="dosage">Dosage</label>
-                                    <textarea name="dosage" class="form-control @error('dosage') is-invalid @enderror" rows="2">{{ old('dosage') }}</textarea>
-                                    @error('dosage')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                <div class="col-md-12">
+                                    <button type="button" class="btn btn-secondary" id="add-medication">Ajouter un médicament</button>
                                 </div>
                             </div>
 
@@ -79,7 +85,30 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.getElementById('add-medication').addEventListener('click', function () {
+        // Create new medication input fields
+        const medicationFields = document.getElementById('medication-fields');
+        const newItem = document.createElement('div');
+        newItem.classList.add('row', 'medication-item');
+        newItem.innerHTML = `
+            <div class="col-md-6 mb-3">
+                <label class="form-label" for="medication[]">Médicament</label>
+                <input type="text" name="medication[]" class="form-control">
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label class="form-label" for="dosage[]">Dosage</label>
+                <input type="text" name="dosage[]" class="form-control">
+            </div>
+        `;
+        medicationFields.appendChild(newItem);
+    });
+</script>
+
 @endsection
+
 
 @section('settings')
     @include('admin.admin_components.settings')

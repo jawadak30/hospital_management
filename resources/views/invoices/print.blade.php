@@ -24,7 +24,7 @@
                 </div>
                 <div class="card-body">
                     <div class="custom-datatable-entries">
-                        <table id="datatable" class="table table-striped" data-toggle="data-table">
+                        <table id="datatable" class="table table-striped" >
                             <thead>
                                 <tr>
                                     <th>#ID</th>
@@ -63,8 +63,12 @@
                                     </td>
                                 </tr>
                                 @endforeach
+                                <!-- Pagination Links -->
                             </tbody>
                         </table>
+<div class="d-flex justify-content-center">
+    {{ $invoices->links() }}
+</div>
                     </div>
                 </div>
             </div>

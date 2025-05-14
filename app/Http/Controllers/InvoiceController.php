@@ -13,7 +13,8 @@ class InvoiceController extends Controller
 {
     public function index()
     {
-        $invoices = Invoice::with('patient')->latest()->get();
+    $invoices = Invoice::with('patient')->latest()->paginate(10); // 10 items per page
+
         return view('invoices.print', compact('invoices'));
     }
 

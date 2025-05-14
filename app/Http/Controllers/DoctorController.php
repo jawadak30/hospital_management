@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Appointment;
 use App\Models\Doctor;
+use App\Models\MedicalRecord;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,8 +16,40 @@ class DoctorController extends Controller
      */
     public function index()
     {
-        return view('admin.dashboard');
+
+           $doctor = Doctor::where('user_id', Auth::id())->firstOrFail();
+
+    // Get all patient IDs who had an appointment with this doctor
+    $patientIds = Appointment::where('doctor_id', $doctor->id)
+        ->pluck('patient_id')
+        ->unique();
+
+    // Count appointments by status for this doctor
+    $appointments = Appointment::where('doctor_id', $doctor->id)->get();
+
+    $completedCount = $appointments->where('status', 'completed')->count();
+    $pendingCount   = $appointments->where('status', 'scheduled')->count();
+    $canceledCount  = $appointments->where('status', 'canceled')->count();
+
+    // Count medical records for those patients
+    $medicalRecordCount = MedicalRecord::whereIn('patient_id', $patientIds)->count();
+
+    return view('admin.dashboard', compact(
+        'completedCount',
+        'pendingCount',
+        'canceledCount',
+        'medicalRecordCount'
+    ));
+        // return view('admin.dashboard');
     }
+    public function view_profile($id)
+{
+    $doctor = Doctor::findOrFail($id);
+    if (!$doctor) {
+        return back()->with('error', 'Doctor not found');
+    }
+    return view('patient.profile', compact('doctor'));
+}
     public function profile()
     {
         $user = auth()->user(); // or get any specific user

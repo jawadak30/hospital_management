@@ -41,8 +41,16 @@
                                     <td>{{ $prescription->id }}</td>
                                     <td>{{ $prescription->doctor->user->name ?? 'N/A' }}</td>
                                     <td>{{ $prescription->patient->user->name ?? 'N/A' }}</td>
-                                    <td>{{ $prescription->medication }}</td>
-                                    <td>{{ $prescription->dosage }}</td>
+                                    <td>
+                                        @foreach($prescription->items as $item)
+                                            <div>{{ $item->medication }}</div>
+                                        @endforeach
+                                    </td>
+                                    <td>
+                                        @foreach($prescription->items as $item)
+                                            <div>{{ $item->dosage }}</div>
+                                        @endforeach
+                                    </td>
                                     <td>
                                         <!-- Update Button -->
                                         <a href="{{ route('prescriptions.edit', $prescription->id) }}" class="btn btn-primary btn-sm">Edit</a>
@@ -84,6 +92,7 @@
     </div>
 </div>
 @endsection
+
 
 @section('settings')
 @include('admin.admin_components.settings')

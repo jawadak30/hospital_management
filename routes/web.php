@@ -29,6 +29,7 @@ Route::group(
 
         Route::middleware('guest')->group(function () {
             Route::get('/', [GuestController::class, 'index'])->name('guest_welcome');
+            Route::get('/view/{id}', [DoctorController::class, 'view_profile'])->name('view_profile');
             Route::fallback(function () {
                 return redirect()->route('guest_welcome');
             });

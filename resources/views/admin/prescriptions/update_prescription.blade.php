@@ -1,7 +1,7 @@
 @extends('basedashboard')
 
 @section('aside')
-@include('admin.admin_components.aside')
+    @include('admin.admin_components.aside')
 @endsection
 
 @section('nav')
@@ -30,13 +30,13 @@
                             @csrf
                             @method('PATCH')
 
-                            <!-- Doctor (auto-filled for authenticated doctor) -->
+                            <!-- Doctor -->
                             <div class="form-group">
                                 <label for="doctor_id">{{ trans('mainTrans.doctor') }}</label>
                                 <input type="text" name="doctor_id" id="doctor_id" class="form-control" value="{{ $doctor->user->name }}" disabled>
                             </div>
 
-                            <!-- Patient Selection (related to appointments with the authenticated doctor) -->
+                            <!-- Patient -->
                             <div class="form-group">
                                 <label for="patient_id">{{ trans('mainTrans.patient') }}</label>
                                 <select name="patient_id" id="patient_id" class="form-control @error('patient_id') is-invalid @enderror">
@@ -52,25 +52,41 @@
                                 @enderror
                             </div>
 
-                            <!-- Medication Field -->
-                            <div class="form-group">
-                                <label for="medication">{{ trans('mainTrans.medication') }}</label>
-                                <textarea name="medication" id="medication" class="form-control @error('medication') is-invalid @enderror">{{ old('medication', $prescription->medication) }}</textarea>
-                                @error('medication')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                            <!-- Medications + Dosages -->
+                            <div class="form-group" id="medication-container">
+                                <label>{{ trans('mainTrans.medication') }}</label>
+@foreach($prescription->items as $index => $item)
+    <div class="row medication-row mb-3">
+        <div class="col-md-5">
+            <input type="text" name="medication[]" class="form-control @error('medication.' . $index) is-invalid @enderror"
+                   value="{{ old('medication.' . $index, $item->medication) }}"
+                   placeholder="{{ trans('mainTrans.medication') }}">
+            @error('medication.' . $index)
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+        <div class="col-md-5">
+            <input type="text" name="dosage[]" class="form-control @error('dosage.' . $index) is-invalid @enderror"
+                   value="{{ old('dosage.' . $index, $item->dosage) }}"
+                   placeholder="{{ trans('mainTrans.dosage') }}">
+            @error('dosage.' . $index)
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-danger remove-medication-btn" style="width: 100%;">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </div>
+    </div>
+@endforeach
+
                             </div>
 
-                            <!-- Dosage Field -->
-                            <div class="form-group">
-                                <label for="dosage">{{ trans('mainTrans.dosage') }}</label>
-                                <textarea name="dosage" id="dosage" class="form-control @error('dosage') is-invalid @enderror">{{ old('dosage', $prescription->dosage) }}</textarea>
-                                @error('dosage')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                            <button type="button" class="btn btn-secondary" id="add-medication-btn">{{ trans('mainTrans.add_medication') }}</button>
 
-                            <button type="submit" class="btn btn-primary">{{ trans('mainTrans.update') }}</button>
+                            <!-- Submit -->
+                            <button type="submit" class="btn btn-primary mt-3">{{ trans('mainTrans.update') }}</button>
                         </form>
 
                     </div>
@@ -79,6 +95,34 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Add new medication row
+    document.getElementById('add-medication-btn').addEventListener('click', function () {
+        const container = document.getElementById('medication-container');
+        const newRow = document.createElement('div');
+        newRow.classList.add('row', 'medication-row', 'mb-3');
+        newRow.innerHTML = `
+            <div class="col-md-5">
+                <input type="text" name="medication[]" class="form-control" placeholder="{{ trans('mainTrans.medication') }}">
+            </div>
+            <div class="col-md-5">
+                <input type="text" name="dosage[]" class="form-control" placeholder="{{ trans('mainTrans.dosage') }}">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-danger remove-medication-btn" style="width: 100%;"><i class="fa-solid fa-trash"></i></button>
+            </div>
+        `;
+        container.appendChild(newRow);
+    });
+
+    // Remove medication row
+    document.addEventListener('click', function (event) {
+        if (event.target.classList.contains('remove-medication-btn')) {
+            event.target.closest('.medication-row').remove();
+        }
+    });
+</script>
 @endsection
 
 @section('settings')
