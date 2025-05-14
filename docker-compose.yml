@@ -5,8 +5,10 @@ services:
     container_name: php_apache
     ports:
       - "8000:80"
+      - "5173:5173"
     volumes:
-      - .:/var/www/html
+      - .:/var/www/html:cached
+      - ./vendor:/var/www/html/vendor
     environment:
       DB_HOST: db
       DB_PORT: 3306
@@ -19,11 +21,11 @@ services:
     networks:
       - laravel_net
 
-  # MySQL (use local image)
+  # MySQL
   db:
-    image: mysql:latest  # or mysql:latest if that's the local image
+    image: mysql:latest
     container_name: mysql_db
-    pull_policy: never  # avoid pulling if image exists locally
+    pull_policy: never
     ports:
       - "3306:3306"
     environment:
