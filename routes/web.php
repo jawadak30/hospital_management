@@ -52,7 +52,9 @@ Route::group(
             Route::get('/beds/status', [BedController::class, 'status'])->name('beds.status');
             Route::resource('/beds', BedController::class);
             Route::get('/patients/{patient}/prescriptions', [PrescriptionController::class, 'prescriptions'])->name('prescriptions.patient');
-
+            Route::get('/profile', [DoctorController::class, 'profile'])->name('doctor_profile');
+        Route::get('/doctor/profile/edit', [DoctorController::class, 'editProfile'])->name('doctor.profile.edit');
+        Route::post('/doctor/profile/update', [DoctorController::class, 'updateProfile'])->name('doctor.profile.update');
             Route::resource('prescriptions', PrescriptionController::class);
             Route::resource('medical_records', MedicalRecordController::class);
             Route::resource('invoices', InvoiceController::class);

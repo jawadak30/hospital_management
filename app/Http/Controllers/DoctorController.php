@@ -17,6 +17,52 @@ class DoctorController extends Controller
     {
         return view('admin.dashboard');
     }
+    public function profile()
+    {
+        $user = auth()->user(); // or get any specific user
+        $doctor = $user->doctor; // Access related doctor data
+
+        // return view('doctor.profile', compact('user', 'doctor'));
+        return view('admin.admin_components.profile', compact('user', 'doctor'));
+    }
+
+    public function editProfile()
+    {
+        $user = auth()->user();
+        $doctor = $user->doctor;
+
+        return view('admin.doctor.profile_edit', compact('user', 'doctor'));
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
+        $doctor = $user->doctor;
+
+        // Validate inputs
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'specialization' => 'required|string|max:255',
+            'availability' => 'required|boolean',
+        ]);
+
+        // Update user
+        $user->update([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+        ]);
+
+        // Update doctor
+        if ($doctor) {
+            $doctor->update([
+                'specialization' => $validated['specialization'],
+                'availability' => $validated['availability'],
+            ]);
+        }
+
+        return back()->with('success', 'Profile updated successfully!');
+    }
     public function all_users()
     {
         // Exclude the currently authenticated user
@@ -41,7 +87,7 @@ class DoctorController extends Controller
         $appointments = Appointment::with(['patient.user'])
             ->where('doctor_id', $doctor->id)
             ->get();
-            
+
 
         return view('admin.reservations.all_reservations', compact('appointments'));
     }

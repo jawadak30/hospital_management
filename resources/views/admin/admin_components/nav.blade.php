@@ -5,12 +5,22 @@
           <!--Logo start-->
           <div class="logo-main">
               <div class="logo-normal">
-                  <svg class="text-primary icon-30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect x="-0.757324" y="19.2427" width="28" height="4" rx="2" transform="rotate(-45 -0.757324 19.2427)" fill="currentColor"/>
-                      <rect x="7.72803" y="27.728" width="28" height="4" rx="2" transform="rotate(-45 7.72803 27.728)" fill="currentColor"/>
-                      <rect x="10.5366" y="16.3945" width="16" height="4" rx="2" transform="rotate(45 10.5366 16.3945)" fill="currentColor"/>
-                      <rect x="10.5562" y="-0.556152" width="28" height="4" rx="2" transform="rotate(45 10.5562 -0.556152)" fill="currentColor"/>
-                  </svg>
+<svg fill="#000000" height="1.875rem" width="1.875rem" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+	 viewBox="0 0 492.308 492.308" xml:space="preserve">
+<g>
+	<g>
+		<path d="M246.154,0C110.423,0,0,110.423,0,246.154s110.423,246.154,246.154,246.154s246.154-110.423,246.154-246.154
+			S381.885,0,246.154,0z M246.154,472.615c-124.87,0-226.462-101.587-226.462-226.462S121.284,19.692,246.154,19.692
+			c124.875,0,226.462,101.587,226.462,226.462S371.029,472.615,246.154,472.615z"/>
+	</g>
+</g>
+<g>
+	<g>
+		<path d="M285.356,113.019v100.577h-78.404V113.019h-61.207v266.269h61.207V278.712h78.404v100.577h61.212V113.019H285.356z
+			 M326.875,359.596h-21.827V259.019H187.26v100.577h-21.822V132.712h21.822v100.577h117.788V132.712h21.827V359.596z"/>
+	</g>
+</g>
+</svg>
               </div>
               <div class="logo-mini">
                   <svg class="text-primary icon-30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -215,7 +225,7 @@
               </div>
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="">{{ trans('mainTrans.profile') }}</a></li>
+              <li><a class="dropdown-item" href="{{ route('doctor_profile') }}">{{ trans('mainTrans.profile') }}</a></li>
               <li><hr class="dropdown-divider"></li>
               <li><form method="POST" action="{{ route('logout') }}">
                 @csrf
