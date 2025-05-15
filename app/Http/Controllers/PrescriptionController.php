@@ -19,11 +19,16 @@ class PrescriptionController extends Controller
 
     public function index()
     {
-        $user = auth()->user();
 
-        // Ensure the user is a doctor and has a related doctor model
+        $user = auth()->user();
+        if ($user->isDoctor()) {
         $doctorId = $user->doctor->id;
         $prescriptions = Prescription::with('doctor.user', 'patient.user')->where('doctor_id', $doctorId)->get();
+        }
+        if ($user->isSecretary()) {
+        $prescriptions = Prescription::with('doctor.user', 'patient.user')->get();
+        }
+        // Ensure the user is a doctor and has a related doctor model
         return view('admin.prescriptions.all_prescreptions', compact('prescriptions'));
     }
 

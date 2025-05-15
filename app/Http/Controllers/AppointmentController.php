@@ -32,40 +32,46 @@ class AppointmentController extends Controller
      */
 public function store(Request $request, $doctorId)
 {
-    // Validate inputs
+    // Support both direct form submission and session restore
+    $appointmentDate = $request->input('appointment_date') ?? session('pending_appointment.appointment_date');
+    $appointmentTime = $request->input('appointment_time') ?? session('pending_appointment.appointment_time');
+
+    // If either is missing, fail safely
+    if (!$appointmentDate || !$appointmentTime) {
+        return back()->with('error', 'Missing appointment date or time.');
+    }
+
+    // Step 1: Validate
+    $request->merge([
+        'appointment_date' => $appointmentDate,
+        'appointment_time' => $appointmentTime,
+    ]);
     $request->validate([
         'appointment_date' => 'required|date|after_or_equal:today',
         'appointment_time' => 'required|date_format:H:i',
     ]);
 
-    if (!Auth::check()) {
-        // Save appointment data in session if guest
+    $user = Auth::user();
+    if (!$user) {
         session([
             'pending_appointment' => [
                 'doctor_id' => $doctorId,
-                'appointment_date' => $request->appointment_date,
-                'appointment_time' => $request->appointment_time,
-            ]
+                'appointment_date' => $appointmentDate,
+                'appointment_time' => $appointmentTime,
+            ],
         ]);
-        return redirect()->route('login')->with('message', 'Please login to complete your appointment booking.');
+
+        return redirect()->route('login')->with('message', 'You must be logged in to book an appointment.');
+    }
+    $patient = $user->patient;
+
+    if (!$patient) {
+        return back()->with('error', 'You must be registered as a patient to book an appointment.');
     }
 
-    $user = Auth::user();
-
-    if ($user->role !== 'patient') {
-        return back()->with('error', 'You must be logged in as a patient to book an appointment.');
-    }
-
-    $patient = $user->patient; // assuming relation patient()
-
-    return $this->createAppointment($doctorId, $request->appointment_date, $request->appointment_time, $patient);
-}
-
-
-protected function createAppointment($doctorId, $date, $time, $patient)
-{
+    // Step 3: Proceed to appointment logic
     $doctor = Doctor::findOrFail($doctorId);
-    $appointmentDateTime = Carbon::parse("{$date} {$time}");
+    $appointmentDateTime = \Carbon\Carbon::parse("{$appointmentDate} {$appointmentTime}");
 
     $dayOfWeek = $appointmentDateTime->format('N');
     $hour = $appointmentDateTime->hour;
@@ -80,7 +86,7 @@ protected function createAppointment($doctorId, $date, $time, $patient)
     $start = $appointmentDateTime->copy()->subMinutes(29);
     $end = $appointmentDateTime->copy()->addMinutes(29);
 
-    $conflict = Appointment::where('doctor_id', $doctorId)
+    $conflict = \App\Models\Appointment::where('doctor_id', $doctorId)
         ->whereBetween('appointment_date', [$start, $end])
         ->whereIn('status', ['scheduled', 'needs_rescheduling'])
         ->exists();
@@ -89,15 +95,21 @@ protected function createAppointment($doctorId, $date, $time, $patient)
         return back()->with('error', 'This time slot is too close to another appointment.');
     }
 
-    Appointment::create([
-        'doctor_id' => $doctor->id,
+    // Store appointment
+    \App\Models\Appointment::create([
+        'doctor_id' => $doctorId,
         'patient_id' => $patient->id,
         'appointment_date' => $appointmentDateTime,
         'status' => 'scheduled',
     ]);
 
-    return back()->with('success', 'Appointment booked successfully!');
+    // Clear session
+    session()->forget('pending_appointment');
+
+    return redirect()->route('appointments.index')->with('success', 'Appointment booked successfully!');
 }
+
+
 
 
 
@@ -135,7 +147,7 @@ protected function createAppointment($doctorId, $date, $time, $patient)
             'status' => $request->status,
         ]);
 
-        return redirect()->route('all_appointment')->with('success', 'Appointment updated successfully.');
+        return back()->with('success', 'Appointment updated successfully.');
     }
 
     /**

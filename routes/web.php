@@ -12,12 +12,7 @@ use App\Http\Controllers\ProfileController;
 use App\View\Components\GuestLayout;
 use Illuminate\Support\Facades\Route;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
-
-
-
-
-
-
+use Psy\VarDumper\Presenter;
 
 Route::group(
     [
@@ -66,8 +61,8 @@ Route::group(
             Route::resource('/beds', BedController::class);
             Route::get('/patients/{patient}/prescriptions', [PrescriptionController::class, 'prescriptions'])->name('prescriptions.patient');
             Route::get('/profile', [DoctorController::class, 'profile'])->name('doctor_profile');
-        Route::get('/doctor/profile/edit', [DoctorController::class, 'editProfile'])->name('doctor.profile.edit');
-        Route::post('/doctor/profile/update', [DoctorController::class, 'updateProfile'])->name('doctor.profile.update');
+            Route::get('/doctor/profile/edit', [DoctorController::class, 'editProfile'])->name('doctor.profile.edit');
+            Route::post('/doctor/profile/update', [DoctorController::class, 'updateProfile'])->name('doctor.profile.update');
             Route::resource('prescriptions', PrescriptionController::class);
             Route::resource('medical_records', MedicalRecordController::class);
             Route::resource('invoices', InvoiceController::class);
@@ -79,6 +74,11 @@ Route::group(
         });
         Route::prefix('/secretary')->middleware(['auth', 'secretary'])->group(function () {
             Route::get('/', [DoctorController::class, 'index'])->name('secretary_dashboard');
+            Route::get('/reservations', [DoctorController::class, 'all_appointment'])->name('secretary.all_appointment');
+            Route::get('/doctor/appointments/{appointment}/edit', [AppointmentController::class, 'edit'])->name('secretary.appointments.edit');
+            Route::patch('/appointments/{appointment}', [AppointmentController::class, 'update'])->name('secretary.appointments.update');
+            Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy'])->name('secretary.appointments.destroy');
+            Route::get('/prescriptions', [PrescriptionController::class, 'index'])->name('secretary.all_prescriptions');
             Route::fallback(function () {
                 return redirect()->route('secretary_dashboard');
             });

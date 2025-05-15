@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
+use \App\Models\Appointment;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,15 +24,44 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
-    {
-        $request->authenticate();
+public function store(LoginRequest $request): RedirectResponse
+{
+    $request->authenticate();
+    $request->session()->regenerate();
 
-        $request->session()->regenerate();
-        $user = Auth::user();
+    $user = Auth::user();
 
-        return $user->redirectAuthUser();
+    if (session()->has('pending_appointment')) {
+        if ($user->role !== 'patient') {
+            return $user->redirectAuthUser()->with('error', 'Only patients can book appointments.');
+        }
+
+        $data = session()->pull('pending_appointment');
+        $doctorId = $data['doctor_id'];
+        $date = $data['appointment_date'];
+        $time = $data['appointment_time'];
+
+        $appointmentDateTime = Carbon::parse("$date $time");
+
+        // Optional: Add conflict checks again here if not already validated earlier
+
+        Appointment::create([
+            'doctor_id' => $doctorId,
+            'patient_id' => $user->patient->id, // This assumes you have the `patient()` relation
+            'appointment_date' => $appointmentDateTime,
+            'status' => 'scheduled',
+        ]);
+
+        session()->forget('pending_appointment');
+
+        return $user->redirectAuthUser()->with('success', 'Appointment booked successfully after login!');
     }
+
+    return $user->redirectAuthUser();
+}
+
+
+
 
     /**
      * Destroy an authenticated session.

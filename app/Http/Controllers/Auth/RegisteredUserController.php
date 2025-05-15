@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Appointment;
 use App\Models\Patient;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -28,36 +30,60 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-public function store(Request $request): RedirectResponse
-{
-    $request->validate([
-        'name' => ['required', 'string', 'max:255'],
-        'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-        'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        'dob' => ['required', 'date'],
-        'address' => ['required', 'string', 'max:255'],
-        'phone' => ['required', 'string', 'max:20'],
-    ]);
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'dob' => ['required', 'date'],
+            'address' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:20'],
+        ]);
 
-    $user = User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'role' => 'patient', // assuming default role is 'patient'
-    ]);
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'patient',
+        ]);
 
-    // Create associated patient data
-    Patient::create([
-        'user_id' => $user->id,
-        'dob' => $request->dob,
-        'address' => $request->address,
-        'phone' => $request->phone,
-    ]);
+        Patient::create([
+            'user_id' => $user->id,
+            'dob' => $request->dob,
+            'address' => $request->address,
+            'phone' => $request->phone,
+        ]);
 
-    event(new Registered($user));
+        event(new Registered($user));
 
-    Auth::login($user);
-    return $user->redirectAuthUser();
-}
+        Auth::login($user);
 
+        if (session()->has('pending_appointment')) {
+            if ($user->role !== 'patient') {
+                return $user->redirectAuthUser()->with('error', 'Only patients can book appointments.');
+            }
+
+            $data = session()->pull('pending_appointment');
+            $doctorId = $data['doctor_id'];
+            $date = $data['appointment_date'];
+            $time = $data['appointment_time'];
+
+            $appointmentDateTime = Carbon::parse("$date $time");
+
+            Appointment::create([
+                'doctor_id' => $doctorId,
+                'patient_id' => $user->patient->id,
+                'appointment_date' => $appointmentDateTime,
+                'status' => 'scheduled',
+            ]);
+
+            session()->forget('pending_appointment');
+
+            return $user->redirectAuthUser()->with('success', 'Appointment booked successfully after registration.');
+        }
+
+
+        return $user->redirectAuthUser();
+    }
 }

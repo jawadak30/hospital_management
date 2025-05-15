@@ -66,19 +66,6 @@ class User extends Authenticatable
     // Redirect authenticated user based on role
 public function redirectAuthUser()
 {
-    // Check for pending appointment for patient role
-    if ($this->isPatient() && session()->has('pending_appointment')) {
-        $pending = session()->pull('pending_appointment'); // pulls and removes in one step
-
-        $appointmentController = app(AppointmentController::class);
-
-        return $appointmentController->createAppointment(
-            $pending['doctor_id'],
-            $pending['appointment_date'],
-            $pending['appointment_time'],
-            $this->patient
-        );
-    }
 
     // Then continue your normal redirects
     if ($this->isGoogleUser()) {

@@ -26,34 +26,45 @@ class DoctorController extends Controller
     {
         return view('admin.dashboard');
     }
-    public function index()
-    {
+public function index()
+{
+    $user = Auth::user();
 
-        $doctor = Doctor::where('user_id', Auth::id())->firstOrFail();
+    if ($user->role === 'doctor') {
+        $doctor = Doctor::where('user_id', $user->id)->firstOrFail();
 
         // Get all patient IDs who had an appointment with this doctor
         $patientIds = Appointment::where('doctor_id', $doctor->id)
             ->pluck('patient_id')
             ->unique();
 
-        // Count appointments by status for this doctor
+        // Appointments by status for this doctor
         $appointments = Appointment::where('doctor_id', $doctor->id)->get();
 
-        $completedCount = $appointments->where('status', 'completed')->count();
-        $pendingCount   = $appointments->where('status', 'scheduled')->count();
-        $canceledCount  = $appointments->where('status', 'canceled')->count();
-
-        // Count medical records for those patients
-        $medicalRecordCount = MedicalRecord::whereIn('patient_id', $patientIds)->count();
-
-        return view('admin.dashboard', compact(
-            'completedCount',
-            'pendingCount',
-            'canceledCount',
-            'medicalRecordCount'
-        ));
-        // return view('admin.dashboard');
     }
+    if ($user->role === 'secretary') {
+        // Secretary sees all appointments
+        $appointments = Appointment::all();
+
+        // Get all patient IDs from all appointments
+        $patientIds = $appointments->pluck('patient_id')->unique();
+    }
+
+    // Shared logic for both roles
+    $completedCount = $appointments->where('status', 'completed')->count();
+    $pendingCount   = $appointments->where('status', 'scheduled')->count();
+    $canceledCount  = $appointments->where('status', 'canceled')->count();
+
+    $medicalRecordCount = MedicalRecord::whereIn('patient_id', $patientIds)->count();
+
+    return view('admin.dashboard', compact(
+        'completedCount',
+        'pendingCount',
+        'canceledCount',
+        'medicalRecordCount'
+    ));
+}
+
 public function view_profile(Request $request, $id)
 {
     $doctor = Doctor::findOrFail($id);
@@ -184,7 +195,7 @@ public function user_update(Request $request, $id)
 
         // Always remove from patients table if new role is NOT 'patient'
         if ($request->role !== 'patient' && $user->patient) {
-            $user->patient->forceDelete(); // Permanently delete from patients table
+            $user->patient->forceDelete();
         }
 
         // Update role
@@ -230,21 +241,29 @@ public function user_update(Request $request, $id)
 
 
 
-    public function all_appointment()
-    {
-        $doctor = Auth::user()->doctor;
+public function all_appointment()
+{
+    $user = Auth::user();
 
-        if (!$doctor) {
-            abort(403, 'Access denied');
-        }
+    if ($user->isDoctor()) {
+        $doctor = $user->doctor;
 
+
+        // Only the doctor's appointments
         $appointments = Appointment::with(['patient.user'])
             ->where('doctor_id', $doctor->id)
             ->get();
 
-
-        return view('admin.reservations.all_reservations', compact('appointments'));
     }
+    if ($user->isSecretary()) {
+        // Secretary sees all appointments
+        $appointments = Appointment::with(['patient.user', 'doctor.user'])->get();
+
+    }
+
+    return view('admin.reservations.all_reservations', compact('appointments'));
+}
+
     /**
      * Show the form for creating a new resource.
      */

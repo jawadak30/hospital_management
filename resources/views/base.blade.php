@@ -43,5 +43,21 @@
 @stack('scripts')
 
 @vite('resources/js/user/user.js')
+<script>
+    // Save scroll position before leaving the page
+    window.addEventListener('beforeunload', function () {
+        localStorage.setItem('scrollPos', window.scrollY);
+    });
+
+    // Restore scroll position after page load
+    window.addEventListener('load', function () {
+        const scrollPos = localStorage.getItem('scrollPos');
+        if (scrollPos !== null) {
+            window.scrollTo(0, parseInt(scrollPos));
+            localStorage.removeItem('scrollPos'); // Optional: remove if you only want to scroll once
+        }
+    });
+</script>
+
 </html>
 

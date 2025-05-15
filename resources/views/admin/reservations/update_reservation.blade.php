@@ -22,7 +22,12 @@
                         </div>
                     </div>
                     <div class="card-body">
+                        @if (auth()->user()->isDoctor())
                         <form action="{{ route('appointments.update', $appointment->id) }}" method="POST">
+                        @endif
+                        @if (auth()->user()->isSecretary())
+                        <form action="{{ route('secretary.appointments.update', $appointment->id) }}" method="POST">
+                        @endif
                             @csrf
                             @method('PATCH')
 

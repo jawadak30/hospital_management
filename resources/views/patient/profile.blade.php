@@ -371,7 +371,7 @@
                 $isWeekday = $dayOfWeek >= 1 && $dayOfWeek <= 6;
                 $isWorkingHour = $currentHour >= 9 && $currentHour < 17;
 
-                $isAvailableToday = $doctor->availability && $isWeekday && $isWorkingHour;
+                $isAvailableToday = $doctor->availability && $isWeekday ;
             @endphp
 
             <div class="doctor-info">

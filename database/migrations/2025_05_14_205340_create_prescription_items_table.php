@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('prescription_items', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('prescription_id')->constrained()->onDelete('cascade');
-    $table->string('medication'); // or medication_id if using a medications table
-    $table->string('dosage');
-    $table->timestamps();
-                $table->softDeletes();
+            $table->id();
+            $table->foreignId('prescription_id')->constrained()->onDelete('cascade');
+            $table->string('medication'); // or medication_id if using a medications table
+            $table->string('dosage');
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
