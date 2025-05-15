@@ -20,7 +20,7 @@
         background: white;
         /* border-radius: 20px; */
         overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        /* box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); */
         position: relative;
         margin: 0 auto;
     }
@@ -115,10 +115,9 @@
 
     .meta-item i {
         display: inline-block;
-        width: 10px;
-        height: 10px;
-        border: 1px solid #2260FF;
-        border-radius: 50%;
+        font-size: 30px;
+        /* border: 1px solid #2260FF;
+        border-radius: 50%; */
     }
 
     .section {
@@ -135,7 +134,7 @@
 
     .section-content {
         color: #333;
-        font-size: 14px;
+        font-size: 20px;
         font-weight: 300;
         line-height: 1.5;
     }
@@ -303,16 +302,16 @@
             gap: 8px;
         }
 
-        .meta-item {
+        /* .meta-item {
             font-size: 10px;
-        }
+        } */
 
         .section-title {
             font-size: 14px;
         }
 
         .section-content {
-            font-size: 12px;
+            font-size: 15pxpx;
         }
 
         .time-slots {
@@ -362,20 +361,29 @@
                 <img class="doctor-image" src="https://placehold.co/200x200" alt="Doctor Photo">
             </div>
 
+            @php
+                use Carbon\Carbon;
+
+                $now = Carbon::now();
+                $dayOfWeek = $now->format('N');
+                $currentHour = $now->hour;
+
+                $isWeekday = $dayOfWeek >= 1 && $dayOfWeek <= 6;
+                $isWorkingHour = $currentHour >= 9 && $currentHour < 17;
+
+                $isAvailableToday = $doctor->availability && $isWeekday && $isWorkingHour;
+            @endphp
+
             <div class="doctor-info">
                 <h2 class="doctor-name">{{ $doctor->user->name }}</h2>
                 <p class="doctor-specialty">{{ $doctor->specialization }}</p>
 
                 <div class="doctor-meta">
                     <div class="meta-item">
-                        <i></i> 5 reviews
-                    </div>
-                    <div class="meta-item">
-                        <i></i> 4.5 rating
-                    </div>
-                    <div class="meta-item">
-                        <i></i>
-                        {{ $doctor->availability ? 'Available: Mon-Sat / 9-5' : 'Not Available' }}
+                        <i class="fa fa-calendar-check"></i>
+                        <span style="color: {{ $isAvailableToday ? 'blue' : 'red' }}; font-size: 15px;">
+                            {{ $isAvailableToday ? 'Available Today (9 AM - 5 PM)' : 'Not Available Today' }}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -384,15 +392,150 @@
         <div class="section">
             <h3 class="section-title">Profile</h3>
             <p class="section-content">
-                This is a placeholder. You can add a `profile` column to the `doctors` table if needed.
+                {{ $doctor->description ?: 'No description provided.' }}
             </p>
         </div>
-
-        <!-- Additional sections... -->
     </div>
+
+    {{-- Flash Messages --}}
+    @if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
+
+    {{-- Date picker form --}}
+    <form method="GET" action="{{ route('view_profile', $doctor->id) }}" class="form-inline">
+        <label for="date">Choose date:</label>
+        <input
+            type="date"
+            id="date"
+            name="date"
+            value="{{ $date }}"
+            min="{{ now()->toDateString() }}"
+            onchange="this.form.submit()"
+        >
+    </form>
+
+    {{-- Appointment booking form --}}
+    @if ($doctor->availability && count($availableSlots) > 0)
+        <form method="POST" action="{{ route('appointments.store', $doctor->id) }}" class="appointment-form">
+            @csrf
+            <input type="hidden" name="appointment_date" value="{{ $date }}">
+
+            <label for="time">Select time:</label>
+            <select name="appointment_time" id="time" required>
+                @foreach ($availableSlots as $slot)
+                    <option value="{{ $slot }}">
+                        {{ \Carbon\Carbon::createFromFormat('H:i', $slot)->format('g:i A') }}
+                    </option>
+                @endforeach
+            </select>
+            @error('appointment_time')
+                <div class="error-message">{{ $message }}</div>
+            @enderror
+
+            <button type="submit" class="btn-submit">Book Appointment</button>
+        </form>
+    @elseif (!$doctor->availability)
+        <p>Doctor is currently not available.</p>
+    @else
+        <p>No available appointment slots on {{ \Carbon\Carbon::parse($date)->format('F j, Y') }}.</p>
+    @endif
 @endsection
 
 
+<style>
+    /* Form container */
+form.appointment-form, form.form-inline {
+    max-width: 400px;
+    margin-top: 20px;
+    padding: 20px;
+    background: #f7f9fc;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Labels */
+form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #333;
+}
+
+/* Inputs and selects */
+form input[type="date"],
+form select {
+    width: 100%;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    border: 1.8px solid #d0d7de;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: border-color 0.3s ease;
+}
+
+form input[type="date"]:focus,
+form select:focus {
+    border-color: #3b82f6; /* nice blue */
+    outline: none;
+    box-shadow: 0 0 6px #3b82f6aa;
+}
+
+/* Error message */
+.error-message {
+    color: #dc2626; /* red-600 */
+    font-size: 13px;
+    margin-top: -8px;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+/* Submit button */
+.btn-submit {
+    background-color: #3b82f6;
+    color: white;
+    padding: 12px 22px;
+    font-size: 16px;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background-color 0.3s ease;
+}
+
+.btn-submit:hover {
+    background-color: #2563eb; /* darker blue */
+}
+
+/* Inline form (date picker) */
+form.form-inline {
+    max-width: 300px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+form.form-inline label {
+    margin: 0;
+    font-weight: 500;
+    color: #444;
+}
+
+form.form-inline input[type="date"] {
+    padding: 8px 10px;
+    font-size: 14px;
+    border-radius: 5px;
+}
+
+</style>
 @section('footer')
     <x-footer />
 @endsection

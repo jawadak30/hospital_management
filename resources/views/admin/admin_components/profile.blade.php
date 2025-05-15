@@ -35,6 +35,7 @@
                                 @else
                                     <p class="text-danger">Doctor profile not found.</p>
                                 @endif
+                                <p><strong>Description:</strong> {{ $doctor->description ?: 'No description provided.' }}</p>
 
                                 <p><strong>Account Created:</strong> {{ $user->created_at->format('Y-m-d H:i:s') }}</p>
                                 <p><strong>Email Verified:</strong> {{ $user->email_verified_at ? 'Yes' : 'No' }}</p>

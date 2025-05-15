@@ -80,6 +80,55 @@
             @enderror
         </div>
 
+        <!-- Date of Birth -->
+<div class="relative mt-6">
+    <input
+        id="dob"
+        name="dob"
+        type="date"
+        class="floating-input"
+        placeholder=" "
+        required
+    />
+    <label for="dob" class="floating-label">Date of Birth</label>
+    @error('dob')
+    <span class="error-text">{{ $message }}</span>
+    @enderror
+</div>
+
+<!-- Address -->
+<div class="relative mt-6">
+    <input
+        id="address"
+        name="address"
+        type="text"
+        class="floating-input"
+        placeholder=" "
+        required
+    />
+    <label for="address" class="floating-label">Address</label>
+    @error('address')
+    <span class="error-text">{{ $message }}</span>
+    @enderror
+</div>
+
+<!-- Phone -->
+<div class="relative mt-6">
+    <input
+        id="phone"
+        name="phone"
+        type="text"
+        class="floating-input"
+        placeholder=" "
+        required
+    />
+    <label for="phone" class="floating-label">Phone</label>
+    @error('phone')
+    <span class="error-text">{{ $message }}</span>
+    @enderror
+</div>
+
+
         <div class="flex items-center justify-end mt-6">
             <a href="{{ route('login') }}" class="text-sm text-gray-600 hover:underline">{{ trans('mainTrans.already') }}</a>
             <button

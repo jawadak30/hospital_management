@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('doctor_id')->constrained('doctors')->onDelete('cascade');
             $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade');
             $table->dateTime('appointment_date');
-            $table->enum('status', ['scheduled', 'completed', 'canceled'])->default('scheduled');
+            $table->enum('status', ['scheduled', 'completed', 'canceled','needs_rescheduling'])->default('scheduled');
             $table->timestamps();
             $table->softDeletes();
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use \App\Http\Controllers\AppointmentController;
 use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Secretary;
@@ -63,23 +64,37 @@ class User extends Authenticatable
     }
 
     // Redirect authenticated user based on role
-    public function redirectAuthUser()
-    {
-        if ($this->isGoogleUser()) {
-            return redirect()->route('google_dashboard');
-        } elseif ($this->isDoctor()) {
-            return redirect()->route('doctor_dashboard');
-        } elseif ($this->isSecretary()) {
-            return redirect()->route('secretary_dashboard');
-        } elseif ($this->isPatient()) {
-            return redirect()->route('patient_dashboard');
-        } elseif ($this->isSuperAdmin()) {
-            return redirect()->route('admin_dashboard');
-        }
+public function redirectAuthUser()
+{
+    // Check for pending appointment for patient role
+    if ($this->isPatient() && session()->has('pending_appointment')) {
+        $pending = session()->pull('pending_appointment'); // pulls and removes in one step
 
+        $appointmentController = app(AppointmentController::class);
 
-        return redirect()->route('guest_welcome');
+        return $appointmentController->createAppointment(
+            $pending['doctor_id'],
+            $pending['appointment_date'],
+            $pending['appointment_time'],
+            $this->patient
+        );
     }
+
+    // Then continue your normal redirects
+    if ($this->isGoogleUser()) {
+        return redirect()->route('google_dashboard');
+    } elseif ($this->isDoctor()) {
+        return redirect()->route('doctor_dashboard');
+    } elseif ($this->isSecretary()) {
+        return redirect()->route('secretary_dashboard');
+    } elseif ($this->isPatient()) {
+        return redirect()->route('patient_dashboard');
+    } elseif ($this->isSuperAdmin()) {
+        return redirect()->route('admin_dashboard');
+    }
+
+    return redirect()->route('guest_welcome');
+}
 
     public function doctor()
     {

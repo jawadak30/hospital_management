@@ -90,7 +90,7 @@
 
 
     <div class="mobile-bottom-navigation">
-        @auth
+        {{-- @auth
         <a class="action-btn" href="">
             <ion-icon name="bag-handle-outline"></ion-icon>
             <span class="count">{{ session()->has('cart') ? count(session('cart')) : 0 }}</span>
@@ -103,7 +103,7 @@
             <span class="count">{{ session()->has('cart') ? count(session('cart')) : 0 }}</span>
         </a>
 
-        @endguest
+        @endguest --}}
 
       <a class="action-btn" href="">
         <ion-icon name="home-outline"></ion-icon>
@@ -147,14 +147,14 @@
 
           <li class="menu-category">
 
-            <button class="accordion-menu" data-accordion-btn>
+            {{-- <button class="accordion-menu" data-accordion-btn>
               <p class="menu-title">{{ trans('mainTrans.categories') }}</p>
 
               <div>
                 <ion-icon name="add-outline" class="add-icon"></ion-icon>
                 <ion-icon name="remove-outline" class="remove-icon"></ion-icon>
               </div>
-            </button>
+            </button> --}}
 
             <ul class="submenu-category-list" data-accordion>
 

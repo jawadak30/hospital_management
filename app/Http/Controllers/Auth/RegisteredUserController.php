@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -27,25 +28,36 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+public function store(Request $request): RedirectResponse
+{
+    $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+        'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        'dob' => ['required', 'date'],
+        'address' => ['required', 'string', 'max:255'],
+        'phone' => ['required', 'string', 'max:20'],
+    ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'role' => 'patient', // assuming default role is 'patient'
+    ]);
 
-        event(new Registered($user));
+    // Create associated patient data
+    Patient::create([
+        'user_id' => $user->id,
+        'dob' => $request->dob,
+        'address' => $request->address,
+        'phone' => $request->phone,
+    ]);
 
-        Auth::login($user);
-        return $user->redirectAuthUser();
+    event(new Registered($user));
 
-        // return redirect(route('dashboard', absolute: false));
-    }
+    Auth::login($user);
+    return $user->redirectAuthUser();
+}
+
 }
