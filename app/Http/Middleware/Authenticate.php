@@ -28,6 +28,9 @@ class Authenticate
                 if ($request->is(LaravelLocalization::getCurrentLocale() . '/secretary*')) {
                     return redirect(LaravelLocalization::getLocalizedURL($locale, route('guest_welcome')));
                 }
+                if ($request->is(LaravelLocalization::getCurrentLocale() . '/admin*')) {
+                    return redirect(LaravelLocalization::getLocalizedURL($locale, route('guest_welcome')));
+                }
             }
             return $next($request);
     }

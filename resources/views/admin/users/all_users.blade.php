@@ -43,7 +43,7 @@
                                     {{-- <td>{{ $user->last_login ? $user->last_login : 'No Login' }}</td> --}}
                                     <td>
                                         <!-- Update Button -->
-                                        <form action="{{ route('user_form_update', $user->id) }}" method="GET" style="display: inline;">
+                                        <form action="{{ route('admin_user_form_update', $user->id) }}" method="GET" style="display: inline;">
                                             <button type="submit" class="btn btn-primary btn-sm">{{ trans('mainTrans.update') }}</button>
                                         </form>
 

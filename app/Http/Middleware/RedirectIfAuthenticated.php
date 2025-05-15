@@ -32,6 +32,9 @@ class RedirectIfAuthenticated
                 if ($user->isSecretary()) {
                     return redirect(LaravelLocalization::getLocalizedURL($locale, route('secretary_dashboard')));
                 }
+                if ($user->isSuperAdmin()) {
+                    return redirect(LaravelLocalization::getLocalizedURL($locale, route('admin_dashboard')));
+                }
             }
         }
 

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password')->nullable();  // Password is nullable for Google users
             $table->string('google_id')->nullable(); // For Google users
-            $table->enum('role', ['doctor', 'secretary', 'patient'])->default('patient');
+            $table->enum('role', ['doctor', 'secretary', 'patient','super_admin'])->default('patient');
             $table->timestamps();
             $table->softDeletes();
 

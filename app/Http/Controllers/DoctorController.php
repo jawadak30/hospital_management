@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\MedicalRecord;
+use App\Models\Patient;
+use App\Models\Secretary;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,10 +16,15 @@ class DoctorController extends Controller
     /**
      * Display a listing of the resource.
      */
+
+        public function admin()
+    {
+                return view('admin.dashboard');
+    }
     public function index()
     {
 
-           $doctor = Doctor::where('user_id', Auth::id())->firstOrFail();
+    $doctor = Doctor::where('user_id', Auth::id())->firstOrFail();
 
     // Get all patient IDs who had an appointment with this doctor
     $patientIds = Appointment::where('doctor_id', $doctor->id)
@@ -108,6 +115,56 @@ class DoctorController extends Controller
         $user = User::findOrFail($id);
         return view('admin.users.update_user', compact('user'));
     }
+
+public function user_update(Request $request, $id)
+{
+    $request->validate([
+        'role' => 'required|in:doctor,secretary,patient,super_admin',
+    ]);
+
+    $user = User::findOrFail($id);
+
+    // If the role has changed
+    if ($user->role !== $request->role) {
+        $user->role = $request->role;
+        $user->save();
+
+        // Create related record only if it doesn't exist
+        switch ($request->role) {
+            case 'doctor':
+                if (!$user->doctor) {
+                    Doctor::create([
+                        'user_id' => $user->id,
+                        'specialization' => 'General', // Or collect this from form
+                        'availability' => true,
+                    ]);
+                }
+                break;
+
+            case 'secretary':
+                if (!$user->secretary) {
+                    Secretary::create([
+                        'user_id' => $user->id,
+                    ]);
+                }
+                break;
+
+            case 'patient':
+                if (!$user->patient) {
+                    Patient::create([
+                        'user_id' => $user->id,
+                        'dob' => now()->subYears(20), // Or collect from form
+                        'address' => 'Unknown',
+                        'phone' => '0000000000',
+                    ]);
+                }
+                break;
+        }
+    }
+
+    return redirect()->back()->with('success', 'User role updated and associated data created if needed.');
+}
+
 
     public function all_appointment()
     {

@@ -35,7 +35,17 @@ Route::group(
             });
         });
 
-        Route::prefix('/patient')->middleware(['auth', 'patient'])->group(function () {
+        Route::prefix('/admin')->middleware(['auth', 'superadmin'])->group(function () {
+            Route::get('/', [DoctorController::class, 'admin'])->name('admin_dashboard');
+            Route::get('/users', [DoctorController::class, 'all_users'])->name('admin_all_users');
+            Route::get('/user/update/{id}', [DoctorController::class, 'user_form_update'])->name('admin_user_form_update');
+            Route::patch('/user/update/{id}', [DoctorController::class, 'user_update'])->name('update_user');
+            Route::delete('/user/delete', [DoctorController::class, 'destroy'])->name('destroy_user');
+            Route::fallback(function () {
+                return redirect()->route('admin_dashboard');
+            });
+        });
+                Route::prefix('/patient')->middleware(['auth', 'patient'])->group(function () {
             Route::get('/', [GuestController::class, 'index'])->name('patient_dashboard');
             Route::fallback(function () {
                 return redirect()->route('patient_dashboard');
@@ -61,7 +71,6 @@ Route::group(
             Route::resource('invoices', InvoiceController::class);
             Route::get('invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
             Route::get('invoices/{invoice}/print', [InvoiceController::class, 'print'])->name('invoices.print');
-            Route::delete('/user/delete', [DoctorController::class, 'destroy'])->name('destroy_user');
             Route::fallback(function () {
                 return redirect()->route('doctor_dashboard');
             });

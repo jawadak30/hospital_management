@@ -51,6 +51,10 @@ class User extends Authenticatable
     {
         return $this->hasRole('doctor');
     }
+        public function isSuperAdmin()
+    {
+        return $this->hasRole('super_admin');
+    }
 
     // Check if the user is a Google user (based on the google_id field)
     public function isGoogleUser()
@@ -69,7 +73,10 @@ class User extends Authenticatable
             return redirect()->route('secretary_dashboard');
         } elseif ($this->isPatient()) {
             return redirect()->route('patient_dashboard');
+        } elseif ($this->isSuperAdmin()) {
+            return redirect()->route('admin_dashboard');
         }
+
 
         return redirect()->route('guest_welcome');
     }
