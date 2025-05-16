@@ -353,51 +353,53 @@
 </style>
 
 @section('section')
-    <div class="profile-card">
-        <div class="profile-header">
-            <h1 class="profile-title">Doctor Info</h1>
+    <div class="container" style="padding-bottom: 10px">
+        <div class="profile-card">
+            <div class="profile-header">
+                <h1 class="profile-title">Doctor Info</h1>
 
-            <div class="doctor-image-container">
-                @if($doctor->pic_path)
-                    <img class="doctor-image" src="{{ asset('storage/' . $doctor->pic_path) }}" alt="Doctor Photo">
-                @else
-                    <img class="doctor-image" src="{{ asset('default/default.jpg') }}" alt="Doctor Photo">
-                @endif
-            </div>
+                <div class="doctor-image-container">
+                    @if($doctor->pic_path)
+                        <img class="doctor-image" src="{{ asset('storage/' . $doctor->pic_path) }}" alt="Doctor Photo">
+                    @else
+                        <img class="doctor-image" src="{{ asset('default/default.jpg') }}" alt="Doctor Photo">
+                    @endif
+                </div>
 
-            @php
-                use Carbon\Carbon;
+                @php
+                    use Carbon\Carbon;
 
-                $now = Carbon::now();
-                $dayOfWeek = $now->format('N');
-                $currentHour = $now->hour;
+                    $now = Carbon::now();
+                    $dayOfWeek = $now->format('N');
+                    $currentHour = $now->hour;
 
-                $isWeekday = $dayOfWeek >= 1 && $dayOfWeek <= 6;
-                $isWorkingHour = $currentHour >= 9 && $currentHour < 17;
+                    $isWeekday = $dayOfWeek >= 1 && $dayOfWeek <= 6;
+                    $isWorkingHour = $currentHour >= 9 && $currentHour < 17;
 
-                $isAvailableToday = $doctor->availability && $isWeekday ;
-            @endphp
+                    $isAvailableToday = $doctor->availability && $isWeekday ;
+                @endphp
 
-            <div class="doctor-info">
-                <h2 class="doctor-name">{{ $doctor->user->name }}</h2>
-                <p class="doctor-specialty">{{ $doctor->specialization }}</p>
+                <div class="doctor-info">
+                    <h2 class="doctor-name">{{ $doctor->user->name }}</h2>
+                    <p class="doctor-specialty">{{ $doctor->specialization }}</p>
 
-                <div class="doctor-meta">
-                    <div class="meta-item">
-                        <i class="fa fa-calendar-check"></i>
-                        <span style="color: {{ $isAvailableToday ? 'blue' : 'red' }}; font-size: 15px;">
-                            {{ $isAvailableToday ? 'Available Today (9 AM - 5 PM)' : 'Not Available Today' }}
-                        </span>
+                    <div class="doctor-meta">
+                        <div class="meta-item">
+                            <i class="fa fa-calendar-check"></i>
+                            <span style="color: {{ $isAvailableToday ? 'blue' : 'red' }}; font-size: 15px;">
+                                {{ $isAvailableToday ? 'Available Today (9 AM - 5 PM)' : 'Not Available Today' }}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="section">
-            <h3 class="section-title">Profile</h3>
-            <p class="section-content">
-                {{ $doctor->description ?: 'No description provided.' }}
-            </p>
+            <div class="section">
+                <h3 class="section-title">Profile</h3>
+                <p class="section-content">
+                    {{ $doctor->description ?: 'No description provided.' }}
+                </p>
+            </div>
         </div>
     </div>
 

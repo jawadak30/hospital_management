@@ -153,13 +153,7 @@
                 <li class="nav-item">
                     <a class="nav-link" data-bs-toggle="collapse" href="#books-menu" role="button"
                         aria-expanded="false" aria-controls="books-menu">
-                        <i class="icon">
-                            <svg width="20" viewBox="0 0 24 24" fill="none"
-                                xmlns="http://www.w3.org/2000/svg" class="icon-20">
-                                <path d="M4 3h16v18H4z" fill="currentColor"></path>
-                                <path d="M8 3v18M16 3v18" stroke="currentColor" stroke-width="2"></path>
-                            </svg>
-                        </i>
+<i class="fa-solid fa-bed"></i>
                         <span class="item-name">beds</span>
                         <i class="right-icon">
                             <svg class="icon-18" xmlns="http://www.w3.org/2000/svg" width="18" fill="none"
@@ -309,17 +303,8 @@
                 <li class="nav-item">
                     <a class="nav-link" data-bs-toggle="collapse" href="#dossiers-menu" role="button"
                         aria-expanded="false" aria-controls="users-menu">
-                        <i class="icon">
-                            <svg width="20" viewBox="0 0 24 24" fill="none"
-                                xmlns="http://www.w3.org/2000/svg" class="icon-20">
-                                <path
-                                    d="M12 2C14.7614 2 17 4.23858 17 7C17 9.76142 14.7614 12 12 12C9.23858 12 7 9.76142 7 7C7 4.23858 9.23858 2 12 2Z"
-                                    fill="currentColor"></path>
-                                <path d="M5 20C5 16.6863 7.68629 14 11 14H13C16.3137 14 19 16.6863 19 20V21H5V20Z"
-                                    fill="currentColor"></path>
-                            </svg>
-                        </i>
-                        <span class="item-name">dossiers</span>
+<i class="fas fa-file-medical"></i>
+                        <span class="item-name">medical records</span>
                         <i class="right-icon">
                             <svg class="icon-18" xmlns="http://www.w3.org/2000/svg" width="18" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
@@ -337,7 +322,7 @@
                                         <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
                                     </svg>
                                 </i>
-                                <span class="item-name">dossiers</span>
+                                <span class="item-name">medical record</span>
                             </a>
                         </li>
                         {{-- <li class="nav-item">
@@ -361,16 +346,7 @@
                 <li class="nav-item">
                     <a class="nav-link" data-bs-toggle="collapse" href="#invoices-menu" role="button"
                         aria-expanded="false" aria-controls="users-menu">
-                        <i class="icon">
-                            <svg width="20" viewBox="0 0 24 24" fill="none"
-                                xmlns="http://www.w3.org/2000/svg" class="icon-20">
-                                <path
-                                    d="M12 2C14.7614 2 17 4.23858 17 7C17 9.76142 14.7614 12 12 12C9.23858 12 7 9.76142 7 7C7 4.23858 9.23858 2 12 2Z"
-                                    fill="currentColor"></path>
-                                <path d="M5 20C5 16.6863 7.68629 14 11 14H13C16.3137 14 19 16.6863 19 20V21H5V20Z"
-                                    fill="currentColor"></path>
-                            </svg>
-                        </i>
+<i class="fas fa-file-invoice"></i>
                         <span class="item-name">invoices</span>
                         <i class="right-icon">
                             <svg class="icon-18" xmlns="http://www.w3.org/2000/svg" width="18" fill="none"

@@ -152,7 +152,6 @@ class DoctorController extends Controller
             'specialization' => 'required|string|max:255',
             'availability' => 'required|boolean',
             'description' => 'nullable|string|max:255',
-            'pic_path' => 'nullable|string|max:255',
         ]);
 
         // Update user

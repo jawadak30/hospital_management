@@ -331,7 +331,7 @@ display: grid
             -->
 
                 <div class="product-main">
-                    <h2 class="title">{{ trans('mainTrans.books') }}</h2>
+                    <h2 class="title">doctors</h2>
 
                     @auth
                         @if (auth()->user()->isPatient())

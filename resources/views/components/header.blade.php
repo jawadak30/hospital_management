@@ -37,10 +37,10 @@
             @endguest
             <div class="header-user-actions">
                 @guest
-                    <a href="{{ route('login') }}" class="action-btn" style="font-size: 20px">login</a>
+                    <a href="{{ route('login') }}" class="action-btn" style="font-size: 20px">{{ trans('mainTrans.login') }}</a>
                 @endguest
                 @guest
-                    <a href="{{ route('register') }}" class="action-btn" style="font-size: 20px">register</a>
+                    <a href="{{ route('register') }}" class="action-btn" style="font-size: 20px">{{ trans('mainTrans.register') }}</a>
                 @endguest
 
 
@@ -93,7 +93,7 @@
                                             href="{{ route('patient_profile') }}">{{ trans('mainTrans.profile') }}</a>
                                     </li>
                                     <li class="dropdown-item">
-                                        <a class="submenu-title" href="{{ route('patient.medical_records') }}">dossier</a>
+                                        <a class="submenu-title" href="{{ route('patient.medical_records') }}">medical record</a>
                                     </li>
                                     <li class="dropdown-item">
                                         <a class="submenu-title"
