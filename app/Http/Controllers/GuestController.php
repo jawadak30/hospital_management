@@ -8,9 +8,17 @@ use App\Models\Department;
 use App\Models\Doctor;
 use App\Models\Patient;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class GuestController extends Controller
 {
+
+    public function profile()
+    {
+        $patient = Patient::with('user')->find(Auth::id());
+        return view('user.profile', compact('patient'));
+    }
+
     public function index(Request $request)
     {
         $specialization = $request->query('specialization'); // Get filter value from URL

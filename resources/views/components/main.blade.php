@@ -109,6 +109,8 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    justify-content: space-between;
+    padding: 10px 0px;
 }
 
 .action-button {
@@ -355,24 +357,18 @@
                                 </div>
                                 <div class="doctor-info">
                                     <h2>Dr. {{ $doctor->user->name }}</h2>
-                                    <p>{{ $doctor->specialization }}</p>
+                                    {{-- <p>{{ $doctor->specialization }}</p> --}}
                                     <div class="actions">
+                                        <p>{{ $doctor->specialization }}</p>
+                                        @guest
                                         <a href="{{route('view_profile',$doctor->id)}}" class="action-button info">Info</a>
-                                        <div class="action-icon">
-                                            <svg width="12" height="13" viewBox="0 0 12 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <!-- SVG paths here -->
-                                            </svg>
-                                        </div>
-                                        <div class="action-icon">
-                                            <svg width="7" height="11" viewBox="0 0 7 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <!-- SVG paths here -->
-                                            </svg>
-                                        </div>
-                                        <div class="action-icon">
-                                            <svg width="2" height="7" viewBox="0 0 2 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <!-- SVG paths here -->
-                                            </svg>
-                                        </div>
+                                        @endguest
+                                        @auth
+                                            @if (auth()->user()->isPatient())
+                                                <a href="{{route('patient.view_profile',$doctor->id)}}" class="action-button info">Info</a>
+                                            @endif
+                                        @endauth
+
                                     </div>
                                 </div>
                             </div>

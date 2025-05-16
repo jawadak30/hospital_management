@@ -72,38 +72,55 @@ class InvoiceController extends Controller
         return view('invoices.show', compact('invoice'));
     }
 
-    public function edit(Invoice $invoice)
-    {
-        $patients = Patient::all();
-        return view('invoices.edit', compact('invoice', 'patients'));
+public function edit(Invoice $invoice)
+{
+    $patients = Patient::with('user')->get(); // For dropdown
+    return view('invoices.update', compact('invoice', 'patients'));
+}
+
+
+public function update(Request $request, Invoice $invoice)
+{
+    // Validate request
+    $data = $request->validate([
+        'patient_id' => 'required|exists:patients,id',
+        'amount' => 'required|numeric',
+        'status' => 'required|in:pending,paid,canceled',
+    ]);
+
+    // Delete old PDF if it exists
+    if ($invoice->path && Storage::disk('public')->exists($invoice->path)) {
+        Storage::disk('public')->delete($invoice->path);
     }
 
-    public function update(Request $request, Invoice $invoice)
-    {
-        $data = $request->validate([
-            'patient_id' => 'required|exists:patients,id',
-            'amount' => 'required|numeric',
-            'status' => 'required|in:pending,paid,canceled',
-        ]);
+    // Update the invoice with new data (without path for now)
+    $invoice->update([
+        ...$data,
+        'path' => '', // Temporary to avoid overwriting before new PDF
+    ]);
 
-        $invoice->update($data);
+    // Generate new PDF filename and path
+    $fileName = uniqid('invoice_') . '.pdf';
+    $filePath = 'uploads/' . $fileName;
 
-        // Regenerate PDF
-        $pdf = Pdf::loadView('invoices.pdf', compact('invoice'));
-        $path = 'invoices/invoice_' . $invoice->id . '.pdf';
-        Storage::put('public/' . $path, $pdf->output());
+    // Create new PDF
+    $pdf = Pdf::loadView('invoices.pdf', compact('invoice'));
 
-        $invoice->update(['path' => $path]);
+    // Store new PDF
+    Storage::disk('public')->put($filePath, $pdf->output());
 
-        return redirect()->route('invoices.index')->with('success', 'Invoice updated.');
-    }
+    // Update invoice with new path
+    $invoice->update(['path' => $filePath]);
+
+    return back()->with('success', 'Invoice updated successfully.');
+}
 
     public function destroy(Invoice $invoice)
     {
         Storage::delete('public/' . $invoice->path);
         $invoice->delete();
 
-        return redirect()->route('invoices.index')->with('success', 'Invoice deleted.');
+        return back()->with('success', 'Invoice deleted.');
     }
 
     public function download(Invoice $invoice)
