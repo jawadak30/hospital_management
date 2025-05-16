@@ -54,8 +54,8 @@
         <div class="user-info">
             <p><strong>Name:</strong> {{ Auth::user()->name }}</p>
             <p><strong>Email:</strong> {{ Auth::user()->email }}</p>
-            <p><strong>Phone:</strong> {{ Auth::user()->phone ?? 'Not provided' }}</p>
-            <p><strong>Address:</strong> {{ Auth::user()->address ?? 'Not provided' }}</p>
+            <p><strong>Phone:</strong> {{ Auth::user()->patient->phone ?? 'Not provided' }}</p>
+            <p><strong>Address:</strong> {{ Auth::user()->patient->address ?? 'Not provided' }}</p>
             {{-- <p><strong>Role:</strong> {{ ucfirst(Auth::user()->role) }}</p> --}}
         </div>
 

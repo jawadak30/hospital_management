@@ -5,7 +5,7 @@
 <footer>
   <div class="footer-nav">
     <div class="container">
-      <div class="footer-logo" style="width:25%; height: 25%;">
+      <div class="footer-logo" style="width:15%; height: 15%;">
         <svg fill="#007bff" height="100%" width="100%" viewBox="0 0 492.308 492.308" xmlns="http://www.w3.org/2000/svg">
           <path d="M246.154,0C110.423,0,0,110.423,0,246.154s110.423,246.154,246.154,246.154s246.154-110.423,246.154-246.154
               S381.885,0,246.154,0z M246.154,472.615c-124.87,0-226.462-101.587-226.462-226.462S121.284,19.692,246.154,19.692

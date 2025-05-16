@@ -44,12 +44,15 @@ Route::group(
         });
                 Route::prefix('/patient')->middleware(['auth', 'patient'])->group(function () {
             Route::get('/', [GuestController::class, 'index'])->name('patient_dashboard');
+
             Route::get('/profile', [GuestController::class, 'profile'])->name('patient_profile');
             Route::get('/profile/edit', [PatientController::class, 'edit'])->name('patient_profile.edit');
-Route::patch('/patient/profile/update', [PatientController::class, 'update'])->name('patient_profile.update');
-    Route::get('/patient/medical-records', [PatientController::class, 'patientMedicalRecordsAndPrescriptions'])->name('patient.medical_records');
+            Route::patch('/patient/profile/update', [PatientController::class, 'update'])->name('patient_profile.update');
+            Route::get('/patient/medical-records', [PatientController::class, 'patientMedicalRecordsAndPrescriptions'])->name('patient.medical_records');
             Route::get('/view/{id}', [DoctorController::class, 'view_profile'])->name('patient.view_profile');
             Route::post('/appointments/{doctorId}', [AppointmentController::class, 'store'])->name('patient.appointments.store');
+            Route::get('/appointements', [PatientController::class, 'appointements'])->name('patient.appointements');
+            Route::delete('/appointments/{id}', [AppointmentController::class, 'delete'])->name('patient.appointments.destroy');
 
             Route::fallback(function () {
                 return redirect()->route('patient_dashboard');

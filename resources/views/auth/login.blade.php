@@ -61,14 +61,14 @@
         </div> --}}
 
         <!-- Actions -->
-        <div class="flex items-center justify-between mt-6">
+        <div class="flex items-center justify-center mt-6">
             @if (Route::has('password.request'))
-                <a
+                {{-- <a
                     class="text-sm text-gray-600 hover:underline dark:text-gray-400"
                     href="{{ route('password.request') }}"
                 >
                     {{ trans('mainTrans.forgot_password') }}
-                </a>
+                </a> --}}
             @endif
 
             <button
@@ -84,3 +84,6 @@
 @endsection
 
 
+@section('footer')
+    <x-footer />
+@endsection

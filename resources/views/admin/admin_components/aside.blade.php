@@ -40,7 +40,7 @@
 
 
 
-            <h4 class="logo-title">E library</h4>
+            <h4 class="logo-title">Hospitallia</h4>
         </a>
         <div class="sidebar-toggle" data-toggle="sidebar" data-active="true">
             <i class="icon">

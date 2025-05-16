@@ -42,9 +42,10 @@
                                             <td>
                                                 <span
                                                     class="badge
-                                            @if ($appointment->status == 'scheduled') bg-warning
-                                            @elseif($appointment->status == 'completed') bg-success
-                                            @elseif($appointment->status == 'canceled') bg-danger @endif">
+                                            @if ($appointment->status == 'scheduled') bg-warning p-3
+                                            @elseif($appointment->status == 'completed') bg-success p-3
+                                            @elseif($appointment->status == 'canceled') bg-danger p-3
+                                            @elseif($appointment->status == 'needs_rescheduling') bg-primary p-3 @endif">
                                                     {{ trans('mainTrans.' . $appointment->status) }}
                                                 </span>
                                             </td>

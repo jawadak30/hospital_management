@@ -106,7 +106,7 @@ public function store(Request $request, $doctorId)
     // Clear session
     session()->forget('pending_appointment');
 
-    return redirect()->route('appointments.index')->with('success', 'Appointment booked successfully!');
+    return back()->with('success', 'Appointment booked successfully!');
 }
 
 
@@ -153,6 +153,25 @@ public function store(Request $request, $doctorId)
     /**
      * Remove the specified resource from storage.
      */
+
+
+     public function delete($id)
+{
+    // Find the appointment by ID or fail with 404
+    $appointment = Appointment::findOrFail($id);
+
+    // Optional: Check if the logged-in user owns this appointment (security)
+    if (auth()->user()->patient->id !== $appointment->patient_id) {
+        return back()->with('error', 'Unauthorized action.');
+    }
+
+    // Delete the appointment (soft delete if using SoftDeletes)
+    $appointment->delete();
+
+    // Redirect back with success message
+    return back()->with('success', 'Appointment deleted successfully.');
+}
+
     public function destroy($id)
     {
         $appointment = Appointment::find($id);

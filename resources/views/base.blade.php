@@ -13,11 +13,17 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   @stack('styles')
+      {{-- @vite('resources/css/admin/hope.css') --}}
   @vite('resources/css/app.css')
   @vite('resources/css/mediaqueries.css')
 </head>
 <body>
 <div class="overlay" data-overlay></div>
+
+@section('loader')
+    @include('admin.admin_components.loader')
+@endsection
+
   @yield('header')
 
   @yield('section')

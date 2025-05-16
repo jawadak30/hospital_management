@@ -34,6 +34,22 @@ class PatientController extends Controller
     {
         //
     }
+
+    public function appointements()
+{
+    $patient = auth()->user()->patient;
+
+    $appointments = $patient->appointments()
+        ->with(['doctor.user'])
+        ->orderBy('appointment_date', 'desc')
+        ->paginate(10); // Add pagination here
+
+    return view( 'user.appointements', compact('appointments'));
+}
+
+
+
+
     public function patientMedicalRecordsAndPrescriptions()
 {
     $user = Auth::user();

@@ -406,44 +406,101 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    {{-- Date picker form --}}
-    <form method="GET" action="{{ route('view_profile', $doctor->id) }}" class="form-inline">
-        <label for="date">Choose date:</label>
-        <input
-            type="date"
-            id="date"
-            name="date"
-            value="{{ $date }}"
-            min="{{ now()->toDateString() }}"
-            onchange="this.form.submit()"
-        >
-    </form>
 
-    {{-- Appointment booking form --}}
-    @if ($doctor->availability && count($availableSlots) > 0)
-        <form method="POST" action="{{ route('appointments.store', $doctor->id) }}" class="appointment-form">
+    <div class="container" style="padding-bottom: 10px">
+        @if (auth()->check() && auth()->user()->isPatient())
+    <form method="GET" action="{{ route('patient.view_profile', $doctor->id) }}" class="mb-3">
+        <div class="mb-3">
+            <label for="date" class="form-label">Choose a date:</label>
+            <input
+                type="date"
+                id="date"
+                name="date"
+                value="{{ $date }}"
+                min="{{ now()->toDateString() }}"
+                class="form-control"
+                onchange="this.form.submit()"
+            >
+        </div>
+    </form>
+@endif
+
+@guest
+    <form method="GET" action="{{ route('view_profile', $doctor->id) }}" class="mb-3">
+        <div class="mb-3">
+            <label for="date" class="form-label">Choose a date:</label>
+            <input
+                type="date"
+                id="date"
+                name="date"
+                value="{{ $date }}"
+                min="{{ now()->toDateString() }}"
+                class="form-control"
+                onchange="this.form.submit()"
+            >
+        </div>
+    </form>
+@endguest
+
+{{-- Appointment Booking Form --}}
+@if ($doctor->availability && count($availableSlots) > 0)
+    @auth
+        @if (auth()->user()->isPatient())
+            <form method="POST" action="{{ route('patient.appointments.store', $doctor->id) }}" class="border p-3 rounded shadow-sm bg-light">
+                @csrf
+                <input type="hidden" name="appointment_date" value="{{ $date }}">
+
+                <div class="mb-3">
+                    <label for="time" class="form-label">Select time:</label>
+                    <select name="appointment_time" id="time" class="form-select" required>
+                        @foreach ($availableSlots as $slot)
+                            <option value="{{ $slot }}">
+                                {{ \Carbon\Carbon::createFromFormat('H:i', $slot)->format('g:i A') }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('appointment_time')
+                        <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <button type="submit" class="btn btn-primary">Book Appointment</button>
+            </form>
+        @endif
+    @endauth
+
+    @guest
+        <form method="POST" action="{{ route('appointments.store', $doctor->id) }}" class="border p-3 rounded shadow-sm bg-light">
             @csrf
             <input type="hidden" name="appointment_date" value="{{ $date }}">
 
-            <label for="time">Select time:</label>
-            <select name="appointment_time" id="time" required>
-                @foreach ($availableSlots as $slot)
-                    <option value="{{ $slot }}">
-                        {{ \Carbon\Carbon::createFromFormat('H:i', $slot)->format('g:i A') }}
-                    </option>
-                @endforeach
-            </select>
-            @error('appointment_time')
-                <div class="error-message">{{ $message }}</div>
-            @enderror
+            <div class="mb-3">
+                <label for="time" class="form-label">Select time:</label>
+                <select name="appointment_time" id="time" class="form-select" required>
+                    @foreach ($availableSlots as $slot)
+                        <option value="{{ $slot }}">
+                            {{ \Carbon\Carbon::createFromFormat('H:i', $slot)->format('g:i A') }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('appointment_time')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                @enderror
+            </div>
 
-            <button type="submit" class="btn-submit">Book Appointment</button>
+            <button type="submit" class="btn btn-primary">Book Appointment</button>
         </form>
-    @elseif (!$doctor->availability)
-        <p>Doctor is currently not available.</p>
-    @else
-        <p>No available appointment slots on {{ \Carbon\Carbon::parse($date)->format('F j, Y') }}.</p>
-    @endif
+    @endguest
+@elseif (!$doctor->availability)
+    <div class="alert alert-warning mt-3">Doctor is currently not available.</div>
+@else
+    <div class="alert alert-info mt-3">
+        No available appointment slots on {{ \Carbon\Carbon::parse($date)->format('F j, Y') }}.
+    </div>
+@endif
+
+    </div>
+{{-- Date Picker Form --}}
 @endsection
 
 

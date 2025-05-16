@@ -142,3 +142,8 @@
 
 {{-- </x-guest-layout> --}}
 @endsection
+
+
+@section('footer')
+    <x-footer />
+@endsection

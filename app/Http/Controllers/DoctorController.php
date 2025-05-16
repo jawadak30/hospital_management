@@ -78,27 +78,50 @@ public function view_profile(Request $request, $id)
 
     $availableSlots = [];
 
-    if ($isAvailableDay) {
-        $startTime = Carbon::parse($date . ' 09:00');
-        $endTime = Carbon::parse($date . ' 17:00');
+if ($isAvailableDay) {
+    $startTime = Carbon::parse($date . ' 09:00');
+    $endTime = Carbon::parse($date . ' 17:00');
 
-        // Generate all slots every 30 mins
-        $period = CarbonPeriod::create($startTime, '30 minutes', $endTime->subMinutes(30));
-        $allSlots = [];
-        foreach ($period as $time) {
-            $allSlots[] = $time->format('H:i');
-        }
-
-        // Get booked slots for the date
-        $bookedSlots = Appointment::where('doctor_id', $doctor->id)
-            ->whereDate('appointment_date', $date)
-            ->where('status', 'scheduled')
-            ->pluck(DB::raw("DATE_FORMAT(appointment_date, '%H:%i')"))
-            ->toArray();
-
-        // Available = all minus booked
-        $availableSlots = array_diff($allSlots, $bookedSlots);
+    // Generate all slots every 30 mins
+    $period = CarbonPeriod::create($startTime, '30 minutes', $endTime->subMinutes(30));
+    $allSlots = [];
+    foreach ($period as $time) {
+        $allSlots[] = $time->format('H:i');
     }
+
+    // ✅ Filter out past times if today
+    if ($date === Carbon::today()->toDateString()) {
+        $now = Carbon::now()->format('H:i');
+        $allSlots = array_filter($allSlots, function ($slot) use ($now) {
+            return $slot > $now;
+        });
+    }
+
+$appointments = Appointment::where('doctor_id', $doctor->id)
+    ->whereDate('appointment_date', $date)
+    ->whereIn('status', ['scheduled', 'needs_rescheduling'])
+    ->pluck('appointment_date');
+
+// Convert to Carbon objects
+$bookedTimes = $appointments->map(fn($datetime) => Carbon::parse($datetime));
+
+// Remove any time slot that is within ±29 mins of any appointment
+$filteredSlots = [];
+foreach ($allSlots as $slot) {
+    $slotTime = Carbon::parse($date . ' ' . $slot);
+    $conflict = $bookedTimes->contains(function ($booked) use ($slotTime) {
+        return abs($slotTime->diffInMinutes($booked)) < 30;
+    });
+
+    if (!$conflict) {
+        $filteredSlots[] = $slot;
+    }
+}
+
+$availableSlots = $filteredSlots;
+
+}
+
 
     return view('patient.profile', compact('doctor', 'date', 'availableSlots'));
 }

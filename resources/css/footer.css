@@ -85,6 +85,8 @@ footer {
     border-bottom: 1px solid var(--onyx);
     padding-bottom: 30px;
     margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
   }
 
   .footer-nav-list:not(:last-child) { margin-bottom: 20px; }

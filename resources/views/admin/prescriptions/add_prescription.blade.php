@@ -67,14 +67,21 @@
                             </div>
 
                             <!-- Add Medication Button -->
-                            <div class="row">
+                            {{-- <div class="row">
                                 <div class="col-md-12">
                                     <button type="button" class="btn btn-secondary" id="add-medication">Ajouter un médicament</button>
                                 </div>
-                            </div>
+                            </div> --}}
 
                             <!-- Submit -->
-                            <div class="form-group">
+                            <div class="form-group"  style="    display: flex
+;
+    justify-content: space-between;
+    width: 62%;
+    align-items: center;">
+                                                                <div class="col-md-12">
+                                    <button type="button" class="btn btn-secondary" id="add-medication">Ajouter un médicament</button>
+                                </div>
                                 <button type="submit" class="btn btn-primary">Ajouter l'ordonnance</button>
                             </div>
                         </form>
