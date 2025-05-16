@@ -388,7 +388,13 @@ display: grid
                             @foreach ($doctors as $doctor)
                                 <div class="doctor-card">
                                     <div class="doctor-image">
-                                        <img src="https://placehold.co/168x169" alt="{{ $doctor->user->name }}">
+                                            @if($doctor->pic_path)
+        <div class="mt-2">
+            <img src="{{ asset('storage/' . $doctor->pic_path) }}" alt="Current Profile Picture" class="img-thumbnail" width="120">
+        </div>
+    @else
+                                            <img src="{{ asset('default/default.jpg') }}" alt="{{ $doctor->user->name }}">
+    @endif
                                     </div>
                                     <div class="doctor-info">
                                         <h2>Dr. {{ $doctor->user->name }}</h2>

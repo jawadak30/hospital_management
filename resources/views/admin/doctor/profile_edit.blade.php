@@ -26,7 +26,7 @@
                     <div class="card-body">
 
                         <!-- Doctor Profile Update Form -->
-                        <form action="{{ route('doctor.profile.update') }}" method="POST">
+                        <form action="{{ route('doctor.profile.update') }}" method="POST" enctype="multipart/form-data">
                             @csrf
 
                             <!-- Name -->
@@ -74,6 +74,25 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+<div class="form-group mt-3">
+    <label for="pic_path">Profile Picture</label>
+    <input type="file" name="pic_path" id="pic_path" class="form-control @error('pic_path') is-invalid @enderror" accept="image/*">
+
+    @error('pic_path')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+
+    @if($doctor->pic_path)
+        <div class="mt-2">
+            <img src="{{ asset('storage/' . $doctor->pic_path) }}" alt="Current Profile Picture" class="img-thumbnail" width="120">
+        </div>
+    @else
+        <div class="mt-2">
+            <img src="{{ asset('default/default.jpg') }}" alt="Current Profile Picture" class="img-thumbnail" width="120">
+        </div>
+    @endif
+</div>
+
 
                             <!-- Submit Button -->
                             <button type="submit" class="btn btn-primary">Update</button>

@@ -19,7 +19,7 @@
         /* max-width: 400px; */
         background: white;
         /* border-radius: 20px; */
-        overflow: hidden;
+        /* overflow: hidden; */
         /* box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); */
         position: relative;
         margin: 0 auto;
@@ -358,7 +358,11 @@
             <h1 class="profile-title">Doctor Info</h1>
 
             <div class="doctor-image-container">
-                <img class="doctor-image" src="https://placehold.co/200x200" alt="Doctor Photo">
+                @if($doctor->pic_path)
+                    <img class="doctor-image" src="{{ asset('storage/' . $doctor->pic_path) }}" alt="Doctor Photo">
+                @else
+                    <img class="doctor-image" src="{{ asset('default/default.jpg') }}" alt="Doctor Photo">
+                @endif
             </div>
 
             @php

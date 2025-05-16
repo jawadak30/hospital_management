@@ -26,105 +26,103 @@ class DoctorController extends Controller
     {
         return view('admin.dashboard');
     }
-public function index()
-{
-    $user = Auth::user();
+    public function index()
+    {
+        $user = Auth::user();
 
-    if ($user->role === 'doctor') {
-        $doctor = Doctor::where('user_id', $user->id)->firstOrFail();
+        if ($user->role === 'doctor') {
+            $doctor = Doctor::where('user_id', $user->id)->firstOrFail();
 
-        // Get all patient IDs who had an appointment with this doctor
-        $patientIds = Appointment::where('doctor_id', $doctor->id)
-            ->pluck('patient_id')
-            ->unique();
+            // Get all patient IDs who had an appointment with this doctor
+            $patientIds = Appointment::where('doctor_id', $doctor->id)
+                ->pluck('patient_id')
+                ->unique();
 
-        // Appointments by status for this doctor
-        $appointments = Appointment::where('doctor_id', $doctor->id)->get();
+            // Appointments by status for this doctor
+            $appointments = Appointment::where('doctor_id', $doctor->id)->get();
+        }
+        if ($user->role === 'secretary') {
+            // Secretary sees all appointments
+            $appointments = Appointment::all();
 
-    }
-    if ($user->role === 'secretary') {
-        // Secretary sees all appointments
-        $appointments = Appointment::all();
+            // Get all patient IDs from all appointments
+            $patientIds = $appointments->pluck('patient_id')->unique();
+        }
 
-        // Get all patient IDs from all appointments
-        $patientIds = $appointments->pluck('patient_id')->unique();
-    }
+        // Shared logic for both roles
+        $completedCount = $appointments->where('status', 'completed')->count();
+        $pendingCount   = $appointments->where('status', 'scheduled')->count();
+        $canceledCount  = $appointments->where('status', 'canceled')->count();
 
-    // Shared logic for both roles
-    $completedCount = $appointments->where('status', 'completed')->count();
-    $pendingCount   = $appointments->where('status', 'scheduled')->count();
-    $canceledCount  = $appointments->where('status', 'canceled')->count();
+        $medicalRecordCount = MedicalRecord::whereIn('patient_id', $patientIds)->count();
 
-    $medicalRecordCount = MedicalRecord::whereIn('patient_id', $patientIds)->count();
-
-    return view('admin.dashboard', compact(
-        'completedCount',
-        'pendingCount',
-        'canceledCount',
-        'medicalRecordCount'
-    ));
-}
-
-public function view_profile(Request $request, $id)
-{
-    $doctor = Doctor::findOrFail($id);
-
-    // Get requested date from query string, or default to today
-    $date = $request->query('date', Carbon::today()->toDateString());
-
-    // Check if doctor is available on this date (weekday + availability)
-    $dayOfWeek = Carbon::parse($date)->format('N'); // 1=Mon, ..., 7=Sun
-    $isAvailableDay = $doctor->availability && $dayOfWeek >= 1 && $dayOfWeek <= 6;
-
-    $availableSlots = [];
-
-if ($isAvailableDay) {
-    $startTime = Carbon::parse($date . ' 09:00');
-    $endTime = Carbon::parse($date . ' 17:00');
-
-    // Generate all slots every 30 mins
-    $period = CarbonPeriod::create($startTime, '30 minutes', $endTime->subMinutes(30));
-    $allSlots = [];
-    foreach ($period as $time) {
-        $allSlots[] = $time->format('H:i');
+        return view('admin.dashboard', compact(
+            'completedCount',
+            'pendingCount',
+            'canceledCount',
+            'medicalRecordCount'
+        ));
     }
 
-    // ✅ Filter out past times if today
-    if ($date === Carbon::today()->toDateString()) {
-        $now = Carbon::now()->format('H:i');
-        $allSlots = array_filter($allSlots, function ($slot) use ($now) {
-            return $slot > $now;
-        });
+    public function view_profile(Request $request, $id)
+    {
+        $doctor = Doctor::findOrFail($id);
+
+        // Get requested date from query string, or default to today
+        $date = $request->query('date', Carbon::today()->toDateString());
+
+        // Check if doctor is available on this date (weekday + availability)
+        $dayOfWeek = Carbon::parse($date)->format('N'); // 1=Mon, ..., 7=Sun
+        $isAvailableDay = $doctor->availability && $dayOfWeek >= 1 && $dayOfWeek <= 6;
+
+        $availableSlots = [];
+
+        if ($isAvailableDay) {
+            $startTime = Carbon::parse($date . ' 09:00');
+            $endTime = Carbon::parse($date . ' 17:00');
+
+            // Generate all slots every 30 mins
+            $period = CarbonPeriod::create($startTime, '30 minutes', $endTime->subMinutes(30));
+            $allSlots = [];
+            foreach ($period as $time) {
+                $allSlots[] = $time->format('H:i');
+            }
+
+            // ✅ Filter out past times if today
+            if ($date === Carbon::today()->toDateString()) {
+                $now = Carbon::now()->format('H:i');
+                $allSlots = array_filter($allSlots, function ($slot) use ($now) {
+                    return $slot > $now;
+                });
+            }
+
+            $appointments = Appointment::where('doctor_id', $doctor->id)
+                ->whereDate('appointment_date', $date)
+                ->whereIn('status', ['scheduled', 'needs_rescheduling'])
+                ->pluck('appointment_date');
+
+            // Convert to Carbon objects
+            $bookedTimes = $appointments->map(fn($datetime) => Carbon::parse($datetime));
+
+            // Remove any time slot that is within ±29 mins of any appointment
+            $filteredSlots = [];
+            foreach ($allSlots as $slot) {
+                $slotTime = Carbon::parse($date . ' ' . $slot);
+                $conflict = $bookedTimes->contains(function ($booked) use ($slotTime) {
+                    return abs($slotTime->diffInMinutes($booked)) < 30;
+                });
+
+                if (!$conflict) {
+                    $filteredSlots[] = $slot;
+                }
+            }
+
+            $availableSlots = $filteredSlots;
+        }
+
+
+        return view('patient.profile', compact('doctor', 'date', 'availableSlots'));
     }
-
-$appointments = Appointment::where('doctor_id', $doctor->id)
-    ->whereDate('appointment_date', $date)
-    ->whereIn('status', ['scheduled', 'needs_rescheduling'])
-    ->pluck('appointment_date');
-
-// Convert to Carbon objects
-$bookedTimes = $appointments->map(fn($datetime) => Carbon::parse($datetime));
-
-// Remove any time slot that is within ±29 mins of any appointment
-$filteredSlots = [];
-foreach ($allSlots as $slot) {
-    $slotTime = Carbon::parse($date . ' ' . $slot);
-    $conflict = $bookedTimes->contains(function ($booked) use ($slotTime) {
-        return abs($slotTime->diffInMinutes($booked)) < 30;
-    });
-
-    if (!$conflict) {
-        $filteredSlots[] = $slot;
-    }
-}
-
-$availableSlots = $filteredSlots;
-
-}
-
-
-    return view('patient.profile', compact('doctor', 'date', 'availableSlots'));
-}
     public function profile()
     {
         $user = auth()->user(); // or get any specific user
@@ -154,6 +152,7 @@ $availableSlots = $filteredSlots;
             'specialization' => 'required|string|max:255',
             'availability' => 'required|boolean',
             'description' => 'nullable|string|max:255',
+            'pic_path' => 'nullable|string|max:255',
         ]);
 
         // Update user
@@ -165,12 +164,19 @@ $availableSlots = $filteredSlots;
         if ($doctor) {
             // Detect change in availability
             $availabilityChangedToFalse = $doctor->availability && !$validated['availability'];
-
+            if ($request->hasFile('pic_path')) {
+                $image = $request->file('pic_path');
+                $filename = uniqid() . '.' . $image->getClientOriginalExtension();
+                $path = $image->storeAs('doctor_profiles', $filename, 'public');
+            } else {
+                $path = $doctor->pic_path; // keep old image if not changed
+            }
             // Update doctor profile
             $doctor->update([
                 'specialization' => $validated['specialization'],
                 'availability' => $validated['availability'],
                 'description' => $validated['description'],
+                'pic_path' => $path,
             ]);
 
             if ($availabilityChangedToFalse) {
@@ -206,86 +212,84 @@ $availableSlots = $filteredSlots;
         return view('admin.users.update_user', compact('user'));
     }
 
-public function user_update(Request $request, $id)
-{
-    $request->validate([
-        'role' => 'required|in:doctor,secretary,patient,super_admin',
-    ]);
+    public function user_update(Request $request, $id)
+    {
+        $request->validate([
+            'role' => 'required|in:doctor,secretary,patient,super_admin',
+        ]);
 
-    $user = User::findOrFail($id);
+        $user = User::findOrFail($id);
 
-    if ($user->role !== $request->role) {
+        if ($user->role !== $request->role) {
 
-        // Always remove from patients table if new role is NOT 'patient'
-        if ($request->role !== 'patient' && $user->patient) {
-            $user->patient->forceDelete();
+            // Always remove from patients table if new role is NOT 'patient'
+            if ($request->role !== 'patient' && $user->patient) {
+                $user->patient->forceDelete();
+            }
+
+            // Update role
+            $user->role = $request->role;
+            $user->save();
+
+            // Optionally create related data for the new role
+            switch ($request->role) {
+                case 'doctor':
+                    if (!$user->doctor) {
+                        Doctor::create([
+                            'user_id' => $user->id,
+                            'specialization' => 'General',
+                            'availability' => true,
+                            'description' => null,
+                        ]);
+                    }
+                    break;
+
+                case 'secretary':
+                    if (!$user->secretary) {
+                        Secretary::create([
+                            'user_id' => $user->id,
+                        ]);
+                    }
+                    break;
+
+                case 'patient':
+                    if (!$user->patient) {
+                        Patient::create([
+                            'user_id' => $user->id,
+                            'dob' => now()->subYears(20),
+                            'address' => 'Unknown',
+                            'phone' => '0000000000',
+                        ]);
+                    }
+                    break;
+            }
         }
 
-        // Update role
-        $user->role = $request->role;
-        $user->save();
+        return redirect()->back()->with('success', 'User role updated successfully.');
+    }
 
-        // Optionally create related data for the new role
-        switch ($request->role) {
-            case 'doctor':
-                if (!$user->doctor) {
-                    Doctor::create([
-                        'user_id' => $user->id,
-                        'specialization' => 'General',
-                        'availability' => true,
-                        'description' => null,
-                    ]);
-                }
-                break;
 
-            case 'secretary':
-                if (!$user->secretary) {
-                    Secretary::create([
-                        'user_id' => $user->id,
-                    ]);
-                }
-                break;
 
-            case 'patient':
-                if (!$user->patient) {
-                    Patient::create([
-                        'user_id' => $user->id,
-                        'dob' => now()->subYears(20),
-                        'address' => 'Unknown',
-                        'phone' => '0000000000',
-                    ]);
-                }
-                break;
+    public function all_appointment()
+    {
+        $user = Auth::user();
+
+        if ($user->isDoctor()) {
+            $doctor = $user->doctor;
+
+
+            // Only the doctor's appointments
+            $appointments = Appointment::with(['patient.user'])
+                ->where('doctor_id', $doctor->id)
+                ->get();
         }
+        if ($user->isSecretary()) {
+            // Secretary sees all appointments
+            $appointments = Appointment::with(['patient.user', 'doctor.user'])->get();
+        }
+
+        return view('admin.reservations.all_reservations', compact('appointments'));
     }
-
-    return redirect()->back()->with('success', 'User role updated successfully.');
-}
-
-
-
-public function all_appointment()
-{
-    $user = Auth::user();
-
-    if ($user->isDoctor()) {
-        $doctor = $user->doctor;
-
-
-        // Only the doctor's appointments
-        $appointments = Appointment::with(['patient.user'])
-            ->where('doctor_id', $doctor->id)
-            ->get();
-
-    }
-    if ($user->isSecretary()) {
-        // Secretary sees all appointments
-        $appointments = Appointment::with(['patient.user', 'doctor.user'])->get();
-
-    }
-
-    return view('admin.reservations.all_reservations', compact('appointments'));
-}
 
     /**
      * Show the form for creating a new resource.

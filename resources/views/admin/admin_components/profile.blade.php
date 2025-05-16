@@ -24,6 +24,14 @@
                                 <a href="{{ route('doctor.profile.edit') }}" class="btn btn-primary btn-sm">update</a>
                             </div>
                             <div class="card-body text-center">
+                                @if ($user->pic_path)
+                                    <img src="{{ asset('storage/' . $user->pic_path) }}" alt="User Image"
+                                        class="rounded-circle" width="150" height="150">
+                                @else
+                                    <img src="{{ asset('default/default.jpg') }}" alt="Default Image"
+                                        class="rounded-circle" width="150" height="150">
+
+                                @endif
                                 <h3>{{ $user->name }}</h3>
                                 <p><strong>Email:</strong> {{ $user->email }}</p>
                                 <p><strong>Role:</strong> {{ ucfirst($user->role) }}</p>
