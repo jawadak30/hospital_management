@@ -27,10 +27,10 @@
 
                             <!-- Occupied Field -->
                             <div class="form-group">
-                                <label for="occupied">{{ trans('mainTrans.occupied') }}</label>
+                                <label for="occupied">occupied</label>
                                 <select name="occupied" id="occupied" class="form-control @error('occupied') is-invalid @enderror">
-                                    <option value="0" {{ old('occupied') == 0 ? 'selected' : '' }}>{{ trans('mainTrans.no') }}</option>
-                                    <option value="1" {{ old('occupied') == 1 ? 'selected' : '' }}>{{ trans('mainTrans.yes') }}</option>
+                                    <option value="0" {{ old('occupied') == 0 ? 'selected' : '' }}>no</option>
+                                    <option value="1" {{ old('occupied') == 1 ? 'selected' : '' }}>yes</option>
                                 </select>
                                 @error('occupied')
                                     <div class="invalid-feedback">{{ $message }}</div>

@@ -107,7 +107,7 @@
                                     fill="currentColor"></path>
                             </svg>
                         </i>
-                        <span class="item-name">appointements</span>
+                        <span class="item-name">{{ trans('mainTrans.appointements') }}</span>
                         <i class="right-icon">
                             <svg class="icon-18" xmlns="http://www.w3.org/2000/svg" width="18" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
@@ -128,7 +128,7 @@
                                     </svg>
                                 </i>
                                 <i class="sidenav-mini-icon"> H </i>
-                                <span class="item-name"> appointements</span>
+                                <span class="item-name"> {{ trans('mainTrans.appointements') }}</span></span>
                             </a>
                         </li>
                         <li class="nav-item" style="display: none">
@@ -172,7 +172,7 @@
                                         <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
                                     </svg>
                                 </i>
-                                <span class="item-name">all beds</span>
+                                <span class="item-name">{{ trans('mainTrans.all_beds') }}</span>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -183,7 +183,7 @@
                                         <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
                                     </svg>
                                 </i>
-                                <span class="item-name">add bed</span>
+                                <span class="item-name">{{ trans('mainTrans.add_bed') }}</span>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -194,7 +194,7 @@
                                         <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
                                     </svg>
                                 </i>
-                                <span class="item-name">beds status</span>
+                                <span class="item-name">{{  trans('mainTrans.beds') }} status</span>
                             </a>
                         </li>
                     </ul>
@@ -518,7 +518,7 @@
                                     fill="currentColor"></path>
                             </svg>
                         </i>
-                        <span class="item-name">appointements</span>
+                        <span class="item-name">{{ trans('mainTrans.appointements') }}</span>
                         <i class="right-icon">
                             <svg class="icon-18" xmlns="http://www.w3.org/2000/svg" width="18" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
@@ -539,7 +539,7 @@
                                     </svg>
                                 </i>
                                 <i class="sidenav-mini-icon"> H </i>
-                                <span class="item-name"> appointements</span>
+                                <span class="item-name"> {{ trans('mainTrans.appointements') }}</span></span>
                             </a>
                         </li>
                         <li class="nav-item" style="display: none">
@@ -600,7 +600,7 @@
                                         <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
                                     </svg>
                                 </i>
-                                <span class="item-name">add bed</span>
+                                <span class="item-name">{{ trans('mainTrans.add_bed') }}</span>
                             </a>
                         </li>
                         <li class="nav-item">

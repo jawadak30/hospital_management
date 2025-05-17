@@ -27,10 +27,10 @@
                                 <thead>
                                     <tr>
                                         <th>ID</th>
-                                        <th>{{ trans('mainTrans.appointment_date') }}</th>
-                                        <th>{{ trans('mainTrans.status') }}</th>
-                                        <th>{{ trans('mainTrans.patient') }}</th>
-                                        <th>{{ trans('mainTrans.actions') }}</th>
+                                        <th>appointment_date</th>
+                                        <th>status</th>
+                                        <th>patient</th>
+                                        <th>actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -46,7 +46,7 @@
                                             @elseif($appointment->status == 'completed') bg-success p-3
                                             @elseif($appointment->status == 'canceled') bg-danger p-3
                                             @elseif($appointment->status == 'needs_rescheduling') bg-primary p-3 @endif">
-                                                    {{ trans('mainTrans.' . $appointment->status) }}
+                                                    {{  $appointment->status }}
                                                 </span>
                                             </td>
                                             <td>{{ $appointment->patient->user->name }}</td>
@@ -85,16 +85,16 @@
                                                     <div class="modal-header">
                                                         <h5 class="modal-title"
                                                             id="deleteModalLabel{{ $appointment->id }}">
-                                                            {{ trans('mainTrans.confirm_delete') }}
+                                                            confirm delete
                                                         </h5>
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                             aria-label="Close"></button>
                                                     </div>
                                                     <div class="modal-body">
-                                                        {{ trans('mainTrans.delete_appointment_confirmation') }}<br>
-                                                        {{ trans('mainTrans.appointment_date') }}:
+                                                        delete_appointment_confirmation<br>
+                                                        appointment_date:
                                                         {{ Carbon::parse($appointment->appointment_date)->format('Y-m-d H:i') }}<br>
-                                                        {{ trans('mainTrans.patient') }}:
+                                                        patient:
                                                         {{ $appointment->patient->user->name ?? 'N/A' }}
                                                     </div>
                                                     <div class="modal-footer">

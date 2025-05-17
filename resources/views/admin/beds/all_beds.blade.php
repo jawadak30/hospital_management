@@ -26,9 +26,9 @@
                         <table id="datatable" class="table table-striped" data-toggle="data-table">
                             <thead>
                                 <tr>
-                                    <th>{{ trans('mainTrans.bed_number') }}</th>
-                                    <th>{{ trans('mainTrans.patient_name') }}</th>
-                                    <th>{{ trans('mainTrans.occupied') }}</th>
+                                    <th>bed number</th>
+                                    <th>Patient</th>
+                                    <th>occupied</th>
                                     <th>{{ trans('mainTrans.actions') }}</th>
                                 </tr>
                             </thead>
@@ -40,7 +40,7 @@
                                         @if($bed->patient)
                                             {{ $bed->patient->name }}
                                         @else
-                                            {{ trans('mainTrans.no_patient_assigned') }}
+                                            no patient assigned
                                         @endif
                                     </td>
                                     <td>{{ $bed->occupied ? 'Yes' : 'No' }}</td>
@@ -64,7 +64,7 @@
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
-                                                {{ trans('mainTrans.delete_bed_confirmation') }} "{{ $bed->id }}"?
+                                                delete "{{ $bed->id }}"?
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ trans('mainTrans.canceled') }}</button>

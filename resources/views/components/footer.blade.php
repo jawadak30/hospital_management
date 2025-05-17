@@ -78,7 +78,7 @@
   <div class="footer-bottom">
     <div class="container">
       <p class="copyright">
-        &copy; {{ date('Y') }} <a href="#">Your Hospital Name</a>. All rights reserved.
+        &copy; {{ date('Y') }} <a href="#">Hospitallia</a>. All rights reserved.
       </p>
     </div>
   </div>

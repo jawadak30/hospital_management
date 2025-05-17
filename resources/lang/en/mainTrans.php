@@ -22,6 +22,12 @@ return [
     'search' => 'Search',
     'available' => 'Available',
     'unavailable' => 'Unavailable',
+    'welcoming'=>'Welcome to our hospital',
+    'insights'=>'Hospital Performance Insights',
+    'filter'=>'Filter by Specialization',
+    'all_specializations'=>'All Specializations',
+    'Reset'=>'Reset',
+    'appointements'=>'Appointments',
 
     // Authentication
     'login' => 'Login',
@@ -107,6 +113,8 @@ return [
 
     // Beds & Rooms
     'beds' => 'Beds',
+    'add_bed' => 'Add Bed',
+    'all_beds' => 'All Beds',
     'rooms' => 'Rooms',
     'bed_number' => 'Bed Number',
     'room_number' => 'Room Number',

@@ -227,7 +227,7 @@ display: grid
 
                         <p class="banner-subtitle" style="color: white">Hospitallia</p>
 
-                        <h2 class="banner-title" style="color: white">Welcome to our hospital</h2>
+                        <h2 class="banner-title" style="color: white">{{ trans('mainTrans.welcoming') }}</h2>
 
                         {{-- <p class="banner-text">
                 starting at &dollar; <b>20</b>.00
@@ -289,21 +289,21 @@ display: grid
     <section class="stats-section">
         <div class="container">
             <div class="stats-header">
-                <h2>Hospital Performance Insights</h2>
+                <h2>{{ trans('mainTrans.insights') }}</h2>
             </div>
 
             <div class="stats-grid">
                 <div class="stat-item">
                     <div class="stat-value">{{ $stats['doctors'] }}</div>
-                    <p class="stat-label">Doctors Available</p>
+                    <p class="stat-label">{{ trans('mainTrans.total_doctors') }}</p>
                 </div>
                 <div class="stat-item">
                     <div class="stat-value">{{ $stats['patients'] }}</div>
-                    <p class="stat-label">Registered Patients</p>
+                    <p class="stat-label">{{ trans('mainTrans.total_patients') }}</p>
                 </div>
                 <div class="stat-item">
                     <div class="stat-value">{{ $stats['appointments'] }}</div>
-                    <p class="stat-label">Appointments This Month</p>
+                    <p class="stat-label">{{ trans('mainTrans.total_appointments') }}</p>
                 </div>
                 {{-- <div class="stat-item">
             <div class="stat-value">{{ $stats['beds_occupied'] }}</div>
@@ -331,7 +331,7 @@ display: grid
             -->
 
                 <div class="product-main">
-                    <h2 class="title">doctors</h2>
+                    <h2 class="title">{{ trans('mainTrans.doctor') }}</h2>
 
                     @auth
                         @if (auth()->user()->isPatient())
@@ -343,12 +343,12 @@ display: grid
                         <form method="GET" action="{{ route('guest_welcome') }}" class="flex items-center gap-4 mb-8">
                         @endguest
                         <label for="specialization" class="text-gray-700 font-semibold text-lg">
-                            Filter by Specialization:
+                            {{ trans('mainTrans.filter') }}:
                         </label>
                         <div class="relative">
                             <select name="specialization" id="specialization" onchange="this.form.submit()"
                                 class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
-                                <option value="">All Specializations</option>
+                                <option value="">{{ trans('mainTrans.all_specializations') }}</option>
                                 @foreach ($specializations as $spec)
                                     <option value="{{ $spec }}"
                                         {{ request('specialization') == $spec ? 'selected' : '' }}>
@@ -369,14 +369,14 @@ display: grid
                             @if (auth()->user()->isPatient())
                                 <a href="{{ route('patient_dashboard') }}"
                                     class="inline-block bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition">
-                                    Reset
+                                    {{ trans('mainTrans.Reset') }}
                                 </a>
                             @endif
                         @endauth
                         @guest
                             <a href="{{ route('guest_welcome') }}"
                                 class="inline-block bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition">
-                                Reset
+                                {{ trans('mainTrans.Reset') }}
                             </a>
                         @endguest
                     </form>
