@@ -62,7 +62,8 @@ class PatientController extends Controller
     }
 
     // Get the patient's single medical record
-    $medicalRecord = $patient->medicalRecord;
+$medicalRecord = MedicalRecord::where('patient_id', $patient->id)->first();
+
 
     // Get all prescriptions with doctor and items
     $prescriptions = $patient->prescriptions()

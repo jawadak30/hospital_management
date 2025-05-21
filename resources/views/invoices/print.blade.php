@@ -41,7 +41,7 @@
                                 <tr>
                                     <td>{{ $invoice->id }}</td>
                                     <td>{{ $invoice->patient->user->name ?? 'N/A' }}</td>
-                                    <td>${{ number_format($invoice->amount, 2) }}</td>
+                                    <td>{{ number_format($invoice->amount, 2) }} dh</td>
                                     <td>
                                         <span class="badge bg-{{ $invoice->status === 'paid' ? 'success' : ($invoice->status === 'canceled' ? 'danger' : 'warning') }}">
                                             {{ ucfirst($invoice->status) }}

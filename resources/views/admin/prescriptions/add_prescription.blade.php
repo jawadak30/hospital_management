@@ -80,9 +80,9 @@
     width: 62%;
     align-items: center;">
                                                                 <div class="col-md-12">
-                                    <button type="button" class="btn btn-secondary" id="add-medication">Ajouter un médicament</button>
+                                    <button type="button" class="btn btn-secondary" id="add-medication">add medicin</button>
                                 </div>
-                                <button type="submit" class="btn btn-primary">Ajouter l'ordonnance</button>
+                                <button type="submit" class="btn btn-primary">add prescription</button>
                             </div>
                         </form>
 

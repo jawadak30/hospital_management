@@ -32,7 +32,10 @@
                                     <th>Patient</th>
                                     <th>Medication</th>
                                     <th>Dosage</th>
-                                    {{-- <th>Actions</th> --}}
+                                    @if (auth()->user()->isDoctor())
+
+                                    <th>Actions</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
